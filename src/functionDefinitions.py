@@ -5,6 +5,7 @@ from nltk.util import ngrams
 
 #for debugging purposes only
 from pprint import pprint
+import pdb
 
 
 # Method to parse the JSON file
@@ -38,7 +39,7 @@ def porcessSentence(sentence):
     possesionLabels = ['NN', 'NNS']
     expressiveLabels = ['NN', 'NNS']
     critcialVerbs = ["won", "win", "nominated", "got", "received", "bagged"]
-    # for (word, tag) in posTags:
+    #for (word, tag) in posTags:
 
 
 
@@ -59,6 +60,67 @@ def  processTweets(tweet):
             #for debugging purpose only. We need to call processSentence method
             #defined above to further process the sentences.
             pprint(sentences[sentenceIndex]) 
+
+
+
+hostPatternList = ['[a-z]* hosting [a-z]*']
+hostPattern = "|".join(hostPatternList)
+hostRegEx = re.compile(hostPattern, re.IGNORECASE)
+
+blacklistWords = ['Golden', 'Globes', 'GOLDEN', 'GLOBES']
+import operator
+
+
+hostName = []
+
+# Method to find host name
+def findHost(tweet):
+    sentenceCount = 0;
+    bigramsInfo = dict()
+    for index in range (0, len(tweet)):
+        sentence = sentenceTokenizer.tokenize(tweet[index])
+        verifiedFlag = False;
+        for sentenceIndex in range (0, len(sentence)):
+            result = hostRegEx.search(sentence[sentenceIndex])
+            if result:
+                token = re.sub(r'[^a-zA-Z0-9 ]',r'',sentence[sentenceIndex])
+                tokens = wordTokenizer.tokenize(token)
+                for key in nltk.bigrams(tokens):
+                    if key in bigramsInfo:
+                        bigramsInfo[key] += 1
+                    else:
+                        bigramsInfo[key] = 1    
+                sentenceCount += 1
+            if sentenceCount > 10:
+                break
+        if sentenceCount > 10:
+                break   
+    
+    bigFinal = dict()     
+    
+    for key in bigramsInfo:
+        nounTags = 0
+        posTags = nltk.pos_tag(key)
+        for (data,tag) in posTags:
+            if data not in blacklistWords:
+                if(tag == 'NNP'):
+                    nounTags += 1
+        if nounTags ==2:
+            bigFinal[key] = bigramsInfo[key]
+
+    max = 0        
+    for key in bigFinal:
+        if(bigFinal[key] > max):
+            max = bigFinal[key]
+
+    for key in bigFinal:
+        if(bigFinal[key] == max):
+            hostName.append(key)
+
+    pprint(hostName)
+
+
+            
 
 
          
