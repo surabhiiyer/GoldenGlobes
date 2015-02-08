@@ -12,4 +12,6 @@ if __name__ == "__main__":
     #for index in range (0, len(tweets)):
         # processTweets id defined in the file functionDefinitions.py
         #functionDefinitions.findHost(tweets[index])
-    functionDefinitions.findHost(tweets)
+    filteredTweets = functionDefinitions.filterTweets(tweets)
+    functionDefinitions.findWinners(filteredTweets)
+    #functionDefinitions.webCrawler("url")
