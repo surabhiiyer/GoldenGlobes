@@ -3,6 +3,12 @@ import urllib2
 import re
 import pprint
 
+def chunks(l, n):
+    """ Yield successive n-sized chunks from l.
+    """
+    for i in xrange(0, len(l), n):
+        yield l[i:i+n]
+
 html_page = urllib2.urlopen("http://www.imdb.com/event/ev0000292/2013")
 soup = BeautifulSoup(html_page)
 
@@ -51,6 +57,10 @@ for i in soup.findAll('h3'):
 
 print "#####NOMINEES#######"
 pprint.pprint(nominees)
+
+#creating lists 
+print "#### NOMINIEES CATEGORIZED ####","\n" 
+pprint.pprint(list(chunks(nominees, 4)))
 
 #print "nominees", nominees
 
