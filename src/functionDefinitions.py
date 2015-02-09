@@ -126,91 +126,53 @@ def findHost(tweet):
     pprint(hostName)        
 # function findHost end
 
-awardCategories = ["best actor", "best actress", "best picture", "best movie", "best director", "best original song",
-"best foreign film", "best original score","best animated", "tv series", "best supporting" , "best screenplay",
-"mini series","Cecil B. DeMille Award"]
 
-#winnerPattern = ['won best']
-winnerRegEx = re.compile('won best', re.IGNORECASE);
+from nltk.corpus import stopwords
+stop = stopwords.words('english')
 
+# list to store all the winners by category
+winners = []
+
+import WinnersData
+winnerRegEx = WinnersData.winnerRegEx
+nomineesByCategory = WinnersData.nomineesByCategory 
 
 def findWinners(tweets):
-    winnerTrigramsList = dict()
-    for index in range(0, len(tweets)):
-        # extract all the sentences in a tweet
-        sentence = sentenceTokenizer.tokenize(tweets[index])
-        for sentenceIndex in range (0, len(sentence)):
-            # filter the sentences based on the reg ex for host
-            result = winnerRegEx.search(sentence[sentenceIndex])
+    #file = open("newfile.txt", "w")
+    winnerBigramList = dict()
+    for categoryIndex in range(0, len(winnerRegEx)):
+        for index in range(0, len(tweets)):
+            winnerFoundFlag = 0
+            result = winnerRegEx[categoryIndex].search(tweets[index])
             if result:
-                tokens = wordTokenizer.tokenize(sentence[sentenceIndex])
-                #triGrams = nltk.trigrams(tokens)
-                for key in nltk.bigrams(tokens):
-                    if key in winnerTrigramsList:
-                        winnerTrigramsList[key] += 1
-                    else:
-                        winnerTrigramsList[key] = 1
-
-    winnerTrigramsProperNouns = dict()     
-    
-    for key in winnerTrigramsList:
-        nounTags = 0
-        posTags = nltk.pos_tag(key)
-        for (data,tag) in posTags:
-            if data not in blacklistWords:
-                if(tag == 'NNP'):
-                    nounTags += 1
-        if nounTags ==2:
-            winnerTrigramsProperNouns[key] = winnerTrigramsList[key]
-    pprint(winnerTrigramsProperNouns)
-    #             nounTags = 0
-    #             for key in triGrams:
-    #                 posTags = nltk.pos_tag(key)
-    #                 for(data, tag) in posTags:
-    #                     if data not in blacklistWords:
-    #                         if(tag == 'NNP'):
-    #                             nounTags += 1
-    #                 if nounTags == 3:
-    #                     if key in winnerTrigramsList:
-    #                         winnerTrigramsList[key] += 1
-    #                     else:
-    #                         winnerTrigramsList[key] = 1
-    # pprint(winnerTrigramsList)                     
-                # else:
-                #     nounTags = 0
-                #     biGrams = nltk.bigrams(tokens)
-                #     for (data, tag) in triGrams:
-                #         if data not in blacklistWords:
-                #             if(tag == 'NNP'):
-                #                 nounTags += 1
-                #     if nounTags == 2                            
-
-
-webCrawlerPattern = ['[a-z]* nominees [a-z]*']
-#hostPattern = "|".join(hostPatternList)
-#hostRegEx = re.compile(hostPattern, re.IGNORECASE)
-
-urlText = []
-class parseText(HTMLParser.HTMLParser):
-    def handle_data(self, data):
-        if data != '\n':
-            urlText.append(data)
-lParser = parseText()
-
-#from urllib2 import urlopen
-#from bs4 import BeautifulSoup
-
-#def webCrawler(url):
-    # thisurl = "http://www.imdb.com/event/ev0000292/2013"
-    # handle = urllib.urlopen(thisurl)
-    # lParser.feed(handle.read())
-    # lParser.close()
-    # for item in urlText:
-    #     print item
-    #soup = BeautifulSoup(urlopen('http://www.imdb.com/event/ev0000292/2013'))
-    #for article in soup.select('div.view-content article'):
-    #    print article.text
-
+                sentence = sentenceTokenizer.tokenize(tweets[index])
+                for sentenceIndex in range(0, len(sentence)):
+                    text = ' '.join(word for word in sentence[sentenceIndex].split() if word not in stop and word not in blacklistWords)
+                    tokens = wordTokenizer.tokenize(text)
+                    for key in nltk.bigrams(tokens):
+                        winner = "%s %s" % key               
+                        if winner in nomineesByCategory[categoryIndex]:
+                            winners.append(winner)
+                            winnerFoundFlag = 1
+                            break
+                    if winnerFoundFlag == 1:
+                        break
+                    for key in nltk.trigrams(tokens):
+                        winner = "%s %s %s" % key 
+                        if winner in nomineesByCategory[categoryIndex]:
+                            winners.append(winner)
+                            winnerFoundFlag = 1
+                            break
+                    if winnerFoundFlag == 1:
+                        break
+                    for unigram in tokens:
+                        if unigram in nomineesByCategory[categoryIndex]:
+                            winners.append(unigram)
+                            winnerFoundFlag = 1 
+                            break          
+            if winnerFoundFlag == 1:
+                break
+    pprint(winners)                            
 
 
 
