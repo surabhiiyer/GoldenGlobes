@@ -32,7 +32,7 @@ wordTokenizer = TreebankWordTokenizer()
 sentenceTokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
 # reg ex for filtering the tweets.
-filterRegExPatterns = ['hosting', 'won best', 'winner', 'wins'] 
+filterRegExPatterns = ['hosting', 'won best', 'winner', 'wins', 'presented', 'presenting'] 
 filterRegExPatternJoin = "|".join(filterRegExPatterns)
 filterRegEx = re.compile(filterRegExPatternJoin, re.IGNORECASE)
 
@@ -44,22 +44,11 @@ filterRetweetRegEx = re.compile('^RT', re.IGNORECASE)
 def filterTweets(tweets):
     filteredTweets = []
     count = 0
-    #file = open("newfile.txt", "w")
-    for index in range(0, len(tweets)):
-        sentence = sentenceTokenizer.tokenize(tweets[index])
-        if not(filterRetweetRegEx.search(sentence[0])):
-            for sentenceIndex in range (0, len(sentence)):
-                # filter the sentences based on the reg ex defined above
-                result = filterRegEx.search(sentence[sentenceIndex])
-                if result:
-                    # if tweet is meaningful, push into the list of filtered tweets
-                    # first remove any speacial characters
-                    tweetCleaned = re.sub(r'[^a-zA-Z0-9 ]',r'',tweets[index])
-                    filteredTweets.append(tweetCleaned)
-                    #file.write(tweetCleaned)
-                    #file.write("\n")
-                    count += 1
-                    break
+    for tweet in tweets:
+        if(filterRegEx.search(tweet) and not filterRetweetRegEx.search(tweet)):
+            count += 1
+            tweetCleaned = re.sub(r'[^a-zA-Z0-9 ]',r'',tweet)
+            filteredTweets.append(tweetCleaned)
     pprint(count)            
     return filteredTweets
 #function filterTweets end
@@ -139,19 +128,9 @@ winnerRegEx = WinnersData.winnerRegEx
 nomineesByCategory = WinnersData.nomineesByCategory
 categories = WinnersData.categories 
 
-def GetMaxWordCount(nominees):
-    maxCount = 0
-    for index in range(0, len(nominees)):
-        count = len(re.findall(r'\w+', nominees[index]))
-        if count > maxCount:
-            maxCount = count
-    return maxCount        
-
-
 def findWinners(tweets):
     winnerngramList = dict()
     for categoryIndex in range(0, len(winnerRegEx)):
-        maxWordCount = GetMaxWordCount(nomineesByCategory[categoryIndex])
         for index in range(0, len(tweets)):
             result = winnerRegEx[categoryIndex].search(tweets[index])
             if result:
@@ -159,50 +138,74 @@ def findWinners(tweets):
                 for sentenceIndex in range(0, len(sentence)):
                     text = ' '.join(word for word in sentence[sentenceIndex].split() if word not in stop and word not in blacklistWords)
                     tokens = wordTokenizer.tokenize(text)
-                    if maxWordCount >= 2:
-                        for key in nltk.bigrams(tokens):
-                            winner = "%s %s" % key               
-                            if winner in nomineesByCategory[categoryIndex]:
-                                if winner in winnerngramList:
-                                    winnerngramList[winner] +=1
+                    for unigram in tokens:
+                        for nominee in nomineesByCategory[categoryIndex]:
+                            tokenNominee = wordTokenizer.tokenize(nominee) 
+                            if unigram in tokenNominee:
+                                if nominee in winnerngramList:
+                                    winnerngramList[nominee] +=1
                                 else:
-                                    winnerngramList[winner] = 1
-                    if maxWordCount >= 3:                     
-                        for key in nltk.trigrams(tokens):
-                            winner = "%s %s %s" % key 
-                            if winner in nomineesByCategory[categoryIndex]:
-                                if winner in winnerngramList:
-                                    winnerngramList[winner] +=1
-                                else:
-                                    winnerngramList[winner] = 1
-                    if maxWordCount >= 1:
-                        for unigram in tokens:
-                            if unigram in nomineesByCategory[categoryIndex]:
-                                if unigram in winnerngramList:
-                                    winnerngramList[unigram] +=1
-                                else:
-                                    winnerngramList[unigram] = 1 
-        #pdb.set_trace()
+                                    winnerngramList[nominee] = 1 
         max = 0        
         for key in winnerngramList:
             if(winnerngramList[key] > max):
                 max = winnerngramList[key]
-
+        if max == 0:
+            winners.append("Data not found")        
         for key in winnerngramList:
             if(winnerngramList[key] == max):
                 winners.append(key)   
-        winnerngramList.clear()        
+        winnerngramList.clear()    
+
+specialAwardWinners = []
+
+specialAwards = WinnersData.specialAwards
+specialAwardsRegEx = WinnersData.specialAwardsRegEx
+
+def findSpecialAwards(tweets):
+    winnerList = dict()
+    for specialAwardIndex in range(0, len(specialAwards)):
+        for index in range(0, len(tweets)):
+            result = specialAwardsRegEx[specialAwardIndex].search(tweets[index])
+            if result:
+                sentence = sentenceTokenizer.tokenize(tweets[index])    
+                for sentenceIndex in range(0, len(sentence)):
+                    text = ' '.join(word for word in sentence[sentenceIndex].split() if word.lower() not in stop and word not in blacklistWords)
+                    tokens = wordTokenizer.tokenize(text)
+                    posTags = nltk.pos_tag(tokens)
+                    for (data,tag) in posTags:
+                        if(tag == 'NNP'):
+                            if data in winnerList:
+                                winnerList[data] +=1
+                            else:
+                                winnerList[data] = 1 
+        max = 0 
+        pdb.set_trace()       
+        for key in winnerList:
+            if(winnerList[key] > max):
+                max = winnerList[key]
+        if max == 0:
+            specialAwardWinners.append("Data not found")        
+        for key in winnerList:
+            if(winnerList[key] == max):
+                specialAwardWinners.append(key)   
+        winnerList.clear()                        
+
+presentersPatternList = ['presented', 'presenter', 'presenting', 'gave away']
+presentersPattern = '|'.join(presentersPatternList)
+presentersPatternRegEx = re.compile(presentersPattern, re.IGNORECASE)
+                    
 
 
 def printResults():
-    print('Golden Globes 2013')
     print('Hosted by:')
     for name in hostName:
         print(name)
     print('Winners by category')
-    #pdb.set_trace()
     for index in range(0, len(categories)):
-        print(categories[index], winners[index])                     
+        print(categories[index], winners[index])
+    # for index in range(0, len(specialAwards)):
+    #     print(specialAwards[index], specialAwardWinners[index])                                          
 
 
 

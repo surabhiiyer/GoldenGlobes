@@ -26,6 +26,8 @@ nomineesSupportingActressSeries = ['Maggie Smith', 'Hayden Panettiere', 'Archie 
 nomineesTelevisionSeriesComedy = ['Girls', 'The Big Bang Theory', 'Episodes', 'Modern Family', 'Smash']
 nomineesTelevisionSeriesDrama = ['Homeland', 'Downton Abbey', 'Boardwalk Empire', 'Breaking Bad', 'The Newsroom']
 nomineesBestMiniSeries = ['Game Change', 'The Girl', 'Hatfields & McCoys', 'The Hour', 'Political Animals']
+nomineesBestOriginalScore = [['Adele', 'Paul Epworth'], ['Monty Powell', 'Keith Urban'], ['Taylor Swift', 'John Paul White', 'Joy Williams', 'T Bone Burnett'],
+['Claude Michel Schonberg', 'Alain Boublil', 'Herbert Kretzmer'], ['Jon Bon Jovi']]
 
 categories = ['Best Motion Picture Drama', 'Best Motion Picture Musical or Comedy', 'Best Actor Drama', 'Best Actor Musical or Comedy', 'Best Actress Drama',
 'Best Actress Musical or Comedy', 'Best Actor in a Supporting Role', 'Best Actress in a Supporting Role', 'Best Director', 'Best Screenplay',
@@ -33,6 +35,10 @@ categories = ['Best Motion Picture Drama', 'Best Motion Picture Musical or Comed
 'Best Actress TV Series Drama', 'Best Actress in a Mini-Series', 'Best Actress TV Series Musical or Comedy', 'Best Performance by an Actor in a Supporting Role in a Series',
 'Best Performance by an Actress in a Supporting Role in a Series', 'Best Television Series - Musical or Comedy', 'Best Television Series - Drama',
 'Best Mini Series']
+
+specialAwards = ['Cecil B. DeMille Award']
+deMilleAwardRegEx = re.compile('cecil.*[b]*.*[demille]*', re.IGNORECASE)
+specialAwardsRegEx = [deMilleAwardRegEx]
 
 bestMovieDramaRegExPatterns = ['best picture.*drama', 'best motion picture.*drama', 'best movie.*drama']
 bestMovieDramaPattern = '|'.join(bestMovieDramaRegExPatterns)
