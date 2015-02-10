@@ -32,7 +32,7 @@ wordTokenizer = TreebankWordTokenizer()
 sentenceTokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
 # reg ex for filtering the tweets.
-filterRegExPatterns = ['hosting', 'won best', 'winner'] 
+filterRegExPatterns = ['hosting', 'won best', 'winner', 'wins'] 
 filterRegExPatternJoin = "|".join(filterRegExPatterns)
 filterRegEx = re.compile(filterRegExPatternJoin, re.IGNORECASE)
 
@@ -122,9 +122,10 @@ def findHost(tweet):
 
     for key in bigramProperNouns:
         if(bigramProperNouns[key] == max):
-            hostName.append(key)
-    pprint(hostName)        
+            host = "%s %s" % key
+            hostName.append(host)        
 # function findHost end
+
 
 
 from nltk.corpus import stopwords
@@ -135,44 +136,74 @@ winners = []
 
 import WinnersData
 winnerRegEx = WinnersData.winnerRegEx
-nomineesByCategory = WinnersData.nomineesByCategory 
+nomineesByCategory = WinnersData.nomineesByCategory
+categories = WinnersData.categories 
+
+def GetMaxWordCount(nominees):
+    maxCount = 0
+    for index in range(0, len(nominees)):
+        count = len(re.findall(r'\w+', nominees[index]))
+        if count > maxCount:
+            maxCount = count
+    return maxCount        
+
 
 def findWinners(tweets):
-    #file = open("newfile.txt", "w")
-    winnerBigramList = dict()
+    winnerngramList = dict()
     for categoryIndex in range(0, len(winnerRegEx)):
+        maxWordCount = GetMaxWordCount(nomineesByCategory[categoryIndex])
         for index in range(0, len(tweets)):
-            winnerFoundFlag = 0
             result = winnerRegEx[categoryIndex].search(tweets[index])
             if result:
-                sentence = sentenceTokenizer.tokenize(tweets[index])
+                sentence = sentenceTokenizer.tokenize(tweets[index])    
                 for sentenceIndex in range(0, len(sentence)):
                     text = ' '.join(word for word in sentence[sentenceIndex].split() if word not in stop and word not in blacklistWords)
                     tokens = wordTokenizer.tokenize(text)
-                    for key in nltk.bigrams(tokens):
-                        winner = "%s %s" % key               
-                        if winner in nomineesByCategory[categoryIndex]:
-                            winners.append(winner)
-                            winnerFoundFlag = 1
-                            break
-                    if winnerFoundFlag == 1:
-                        break
-                    for key in nltk.trigrams(tokens):
-                        winner = "%s %s %s" % key 
-                        if winner in nomineesByCategory[categoryIndex]:
-                            winners.append(winner)
-                            winnerFoundFlag = 1
-                            break
-                    if winnerFoundFlag == 1:
-                        break
-                    for unigram in tokens:
-                        if unigram in nomineesByCategory[categoryIndex]:
-                            winners.append(unigram)
-                            winnerFoundFlag = 1 
-                            break          
-            if winnerFoundFlag == 1:
-                break
-    pprint(winners)                            
+                    if maxWordCount >= 2:
+                        for key in nltk.bigrams(tokens):
+                            winner = "%s %s" % key               
+                            if winner in nomineesByCategory[categoryIndex]:
+                                if winner in winnerngramList:
+                                    winnerngramList[winner] +=1
+                                else:
+                                    winnerngramList[winner] = 1
+                    if maxWordCount >= 3:                     
+                        for key in nltk.trigrams(tokens):
+                            winner = "%s %s %s" % key 
+                            if winner in nomineesByCategory[categoryIndex]:
+                                if winner in winnerngramList:
+                                    winnerngramList[winner] +=1
+                                else:
+                                    winnerngramList[winner] = 1
+                    if maxWordCount >= 1:
+                        for unigram in tokens:
+                            if unigram in nomineesByCategory[categoryIndex]:
+                                if unigram in winnerngramList:
+                                    winnerngramList[unigram] +=1
+                                else:
+                                    winnerngramList[unigram] = 1 
+        #pdb.set_trace()
+        max = 0        
+        for key in winnerngramList:
+            if(winnerngramList[key] > max):
+                max = winnerngramList[key]
+
+        for key in winnerngramList:
+            if(winnerngramList[key] == max):
+                winners.append(key)   
+        winnerngramList.clear()        
+
+
+def printResults():
+    print('Golden Globes 2013')
+    print('Hosted by:')
+    for name in hostName:
+        print(name)
+    print('Winners by category')
+    #pdb.set_trace()
+    for index in range(0, len(categories)):
+        print(categories[index], winners[index])                     
+
 
 
 
