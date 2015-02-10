@@ -32,7 +32,7 @@ wordTokenizer = TreebankWordTokenizer()
 sentenceTokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
 # reg ex for filtering the tweets.
-filterRegExPatterns = ['hosting', 'won best', 'winner', 'wins'] 
+filterRegExPatterns = ['hosting', 'won best', 'winner', 'wins', 'dressed', 'dress', 'best-dressed'] 
 filterRegExPatternJoin = "|".join(filterRegExPatterns)
 filterRegEx = re.compile(filterRegExPatternJoin, re.IGNORECASE)
 
@@ -192,6 +192,54 @@ def findWinners(tweets):
             if(winnerngramList[key] == max):
                 winners.append(key)   
         winnerngramList.clear()        
+# to store red carpet
+bestDressed = []
+
+# check list of nominees in tweets containing "best-dressed" etc.
+# Nominees who are mentioned the most times are best dressed
+# needs work, will replace winners code with redcarpet code
+def redCarpet(tweets):
+    carpetList = dict()
+    for categoryIndex in range(0, len(winnerRegEx)):
+        maxWordCount = GetMaxWordCount(nomineesByCategory[categoryIndex])
+        for index in range(0, len(tweets)):
+            result = winnerRegEx[categoryIndex].search(tweets[index])
+            if result:
+                sentence = sentenceTokenizer.tokenize(tweets[index])
+                for sentenceIndex in range(0, len(sentence)):
+                    text = ' '.join(word for word in sentence[sentenceIndex].split() if word not in stop and word not in blacklistWords)
+                    tokens = wordTokenizer.tokenize(text)
+                    if maxWordCount >= 2:
+                        for key in nltk.bigrams(tokens):
+                            winner = "%s %s" % key
+                            if winner in nomineesByCategory[categoryIndex]:
+                                if winner in carpetList:
+                                        carpetList[winner] +=1
+                                else: carpetList[winner] = 1
+                    if maxWordCount >= 3:
+                        for key in nltk.trigrams(tokens):
+                            winner = "%s %s %s" %key
+                            if winner in nomineesByCategory[categoryIndex]:
+                                if winner in carpetList:
+                                    carpetList[winner] +=1
+                                else:
+                                    carpetList[winner] = 1
+                    if maxWordCount >= 1:
+                        for unigram in tokens:
+                            if unigram in nomineesByCategory[categoryIndex]:
+                                if unigram in carpetList:
+                                    carpetList[unigram] +=1
+                                else:
+                                    carpetList[unigram] = 1
+        max = 0
+        for key in carpetList:
+            if(carpetList[key] > max):
+                max = carpetList[key]
+        for key in carpetList:
+            if(carpetList[key] == max):
+                winners.append(key)
+        carpetList.clear()
+
 
 
 def printResults():
@@ -203,6 +251,10 @@ def printResults():
     #pdb.set_trace()
     for index in range(0, len(categories)):
         print(categories[index], winners[index])                     
+    print('Best Dressed:')
+    for index in range(0, len(bestDressed)):
+        print(bestDressed[index])
+
 
 
 
