@@ -1,3 +1,5 @@
+""" There are 5 nominees. The last value in each list is the winner """ 
+
 from bs4 import BeautifulSoup
 import urllib2
 import re
@@ -8,6 +10,7 @@ def chunks(l, n):
     """
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
+
 
 def crawl(page_url): 
 	#page_url = "http://www.imdb.com/event/ev0000292/2013"
@@ -24,14 +27,14 @@ def crawl(page_url):
 					#print c.string  
 					winners.append(c.string)	
 
-	print '#####WINNERS#####'
-	pprint.pprint(winners)
+	#print '#####WINNERS#####', len(winners)
+
+	#pprint.pprint(winners)
 
 	big_list = [] 
 	nominees = [] 
 	for i in soup.findAll('h3'):
 		if i.text == 'NOMINEES': 
-			#print i.string
 			nextNode = i.findNext('div',attrs={'class':'alt'})
 			for j in nextNode.findAll('strong'): 
 				for k in j.findAll('a', attrs={'href': re.compile("^/title")}):
@@ -57,14 +60,29 @@ def crawl(page_url):
 					#num_evens.setdefault(even_counter,[]).append(k.string)
 					nominees.append(k.string)	
 
-	print "#####NOMINEES#######"
-	pprint.pprint(nominees)
+		#print "#####NOMINEES#######"
+		#pprint.pprint(nominees)
 
-	#creating lists 
-	print "#### NOMINIEES CATEGORIZED ####","\n" 
-	pprint.pprint(list(chunks(nominees, 4)))
+		#creating lists 
+		#print "#### NOMINIEES CATEGORIZED ####"
+		nominees_categorized = []
+		nominees_categorized = list(chunks(nominees, 4))
+		#pprint.pprint(nominees_categorized)
+		#print "#### NOMINIEES CATEGORIZED ####", len(nominees_categorized)
 
-crawl("http://www.imdb.com/event/ev0000292/2013")
+		for i in range(len(nominees_categorized)): 
+			nominees_categorized[i].append(winners[i])
+
+		#print "#### NOMINIEES CATEGORIZED WITH WINNERS ####"
+		#pprint.pprint(nominees_categorized)
+		#print "#### NOMINIEES CATEGORIZED ####", len(nominees_categorized)
+
+	return nominees_categorized 
+
+nominees_categorized = []
+nominees_categorized = crawl("http://www.imdb.com/event/ev0000292/2013")
+
+pprint.pprint(nominees_categorized)
 
 # Best Motion Picture - Drama
 
@@ -103,8 +121,6 @@ crawl("http://www.imdb.com/event/ev0000292/2013")
 # Best Performance by an Actress in a Television Series - Drama
 
 # Best Performance by an Actress in a Mini-Series or a Motion Picture Made for Television
-
-
 # Best Performance by an Actor in a Supporting Role in a Series, Mini-Series or Motion Picture Made for Television
 
 # Best Performance by an Actress in a Supporting Role in a Series, Mini-Series or Motion Picture Made for Television
