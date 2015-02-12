@@ -9,7 +9,6 @@ import HTMLParser
 from pprint import pprint
 import pdb
 
-
 # Method to parse the JSON file
 # Input: path to json file
 # Returns: the parsed data in an array 
@@ -31,8 +30,11 @@ wordTokenizer = TreebankWordTokenizer()
 # to be used to tokenize sentences in a tweet
 sentenceTokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
+from nltk.corpus import stopwords
+stop = stopwords.words('english')
+
 # reg ex for filtering the tweets.
-filterRegExPatterns = ['hosting', 'won best', 'winner', 'wins', 'presented', 'presenting'] 
+filterRegExPatterns = ['host?[s]', 'hosting', 'hosted', 'won best', 'winner', 'wins', 'presented', 'presenting'] 
 filterRegExPatternJoin = "|".join(filterRegExPatterns)
 filterRegEx = re.compile(filterRegExPatternJoin, re.IGNORECASE)
 
@@ -54,74 +56,56 @@ def filterTweets(tweets):
 #function filterTweets end
 
 # a list of tokens to be removed from the tweets/sentences under analysis
-blacklistWords = ['Golden', 'Globes', 'GOLDEN', 'GLOBES']
-
-#reg ex pattern for filtering tweets with information about the host(s)
-hostRegEx = re.compile('hosting', re.IGNORECASE)
-# a list to store the host name. TODO: to be replaced by some meaningful structure
-hostName = []
-
-# Method to find the host name from all the tweets
-# INPUT: tweets in array/list format
-# OUPUT: none
-def findHost(tweet):
-    # dictionary object to store the bigrams
-    bigramsList = dict()
-    # variable to check the number of sentences that satisfy the regex for extracting host name
-    sentenceCount = 0;
-    for index in range (0, len(tweet)):
-        # extract all the sentences in a tweet
-        sentence = sentenceTokenizer.tokenize(tweet[index])
-        for sentenceIndex in range (0, len(sentence)):
-            # filter the sentences based on the reg ex for host
-            result = hostRegEx.search(sentence[sentenceIndex])
-            if result:
-                # remove all the special characters from the sentence
-                token = re.sub(r'[^a-zA-Z0-9 ]',r'',sentence[sentenceIndex])
-                tokens = wordTokenizer.tokenize(token)
-                # calculate the frequency of bigrams
-                for key in nltk.bigrams(tokens):
-                    if key in bigramsList:
-                        bigramsList[key] += 1
-                    else:
-                        bigramsList[key] = 1    
-                sentenceCount += 1
-            # if we have 10 sentences that give information about the hosts, stop this process    
-            if sentenceCount > 10:
-                break
-        if sentenceCount > 10:
-                break   
-    # List that stores bigrams pairs that are Proper Nouns
-    bigramProperNouns = dict()     
-    
-    for key in bigramsList:
-        nounTags = 0
-        posTags = nltk.pos_tag(key)
-        for (data,tag) in posTags:
-            if data not in blacklistWords:
-                if(tag == 'NNP'):
-                    nounTags += 1
-        if nounTags ==2:
-            bigramProperNouns[key] = bigramsList[key]
-
-    max = 0        
-    for key in bigramProperNouns:
-        if(bigramProperNouns[key] > max):
-            max = bigramProperNouns[key]
-
-    for key in bigramProperNouns:
-        if(bigramProperNouns[key] == max):
-            host = "%s %s" % key
-            hostName.append(host)        
-# function findHost end
-
-
-
-from nltk.corpus import stopwords
-stop = stopwords.words('english')
-
+blacklistWords = ['golden', 'globes', 'goldenglobes', '#goldenglobes', '#golden']
+#list of hosts
+hosts = []
 # list to store all the winners by category
 winners = []
+specialAwardWinners = []
+
+#reg ex pattern for filtering tweets with information about the host(s)
+hostRegExPatterns = ['host?[s]', 'hosting', 'hosted']
+hostRegExPatternJoint = '|'.join(hostRegExPatterns)
+hostRegEx = re.compile(hostRegExPatternJoint, re.IGNORECASE)
+# a list to store the host name. TODO: to be replaced by some meaningful structure
+hostName = dict()
+
+def addToDictionary(key, dictionaryObject):
+    if key in dictionaryObject:
+        dictionaryObject[key] += 1
+    else:
+        dictionaryObject[key] = 1    
+
+def findMaxInDictionary(dictionaryObject, resultList):
+    max = 0
+    for key in dictionaryObject:
+        if max < dictionaryObject[key]:
+            max = dictionaryObject[key]
+    for key in dictionaryObject:
+        if max == dictionaryObject[key]:
+            resultList.append(key)        
+
+
+def findHost(tweets):
+    name = ''
+    tweetsScanned = 0
+    for tweet in tweets:
+        if hostRegEx.search(tweet):
+            tweetsScanned += 1
+            filterText = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords)
+            unigram = wordTokenizer.tokenize(filterText)
+            for bigram in nltk.bigrams(unigram):
+                noun = 0
+                posTag = nltk.pos_tag(bigram)
+                for(data, tag) in posTag:
+                    if tag == 'NNP':
+                        noun += 1
+                if noun == 2:
+                    name = "%s %s" % bigram
+                    addToDictionary(name, hostName)
+        if tweetsScanned > 10:
+            break                    
+    findMaxInDictionary(hostName, hosts)
 
 import WinnersData
 winnerRegEx = WinnersData.winnerRegEx
@@ -157,49 +141,36 @@ def findWinners(tweets):
                 winners.append(key)   
         winnerngramList.clear()    
 
-specialAwardWinners = []
 
 specialAwards = WinnersData.specialAwards
 specialAwardsRegEx = WinnersData.specialAwardsRegEx
 
-def findSpecialAwards(tweets):
-    winnerList = dict()
-    for specialAwardIndex in range(0, len(specialAwards)):
-        for index in range(0, len(tweets)):
-            result = specialAwardsRegEx[specialAwardIndex].search(tweets[index])
-            if result:
-                sentence = sentenceTokenizer.tokenize(tweets[index])    
-                for sentenceIndex in range(0, len(sentence)):
-                    text = ' '.join(word for word in sentence[sentenceIndex].split() if word.lower() not in stop and word not in blacklistWords)
-                    tokens = wordTokenizer.tokenize(text)
-                    posTags = nltk.pos_tag(tokens)
-                    for (data,tag) in posTags:
-                        if(tag == 'NNP'):
-                            if data in winnerList:
-                                winnerList[data] +=1
-                            else:
-                                winnerList[data] = 1 
-        max = 0 
-        pdb.set_trace()       
-        for key in winnerList:
-            if(winnerList[key] > max):
-                max = winnerList[key]
-        if max == 0:
-            specialAwardWinners.append("Data not found")        
-        for key in winnerList:
-            if(winnerList[key] == max):
-                specialAwardWinners.append(key)   
-        winnerList.clear()                        
+specialAwardWinner = dict()
 
-presentersPatternList = ['presented', 'presenter', 'presenting', 'gave away']
-presentersPattern = '|'.join(presentersPatternList)
-presentersPatternRegEx = re.compile(presentersPattern, re.IGNORECASE)
-                    
-
+def findWinnersSpecialAward(tweets):
+    for index in range(0, len(specialAwards)):
+        specialAwardStopWords = wordTokenizer.tokenize(specialAwards[index])
+        for tweet in tweets:
+            if specialAwardsRegEx[index].search(tweet):
+                filteredSentences = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords 
+                    and word not in specialAwardStopWords)
+                unigrams = wordTokenizer.tokenize(filteredSentences)
+                for bigram in nltk.bigrams(unigrams):
+                    posTags = nltk.pos_tag(bigram)
+                    noun = 0
+                    for (data, tag) in posTags:
+                        if tag == 'NNP':
+                            noun += 1
+                    if noun == 2:
+                        name = "%s %s" % bigram
+                        addToDictionary(name, specialAwardWinner)                   
+        findMaxInDictionary(specialAwardWinner, specialAwardWinners)
+        specialAwardWinner.clear()
+                                      
 
 def printResults():
     print('Hosted by:')
-    for name in hostName:
+    for name in hosts:
         print(name)
     print('Winners by category')
     for index in range(0, len(categories)):
