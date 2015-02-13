@@ -17,6 +17,3 @@ def scrapeCategories(url):
 		headerText = header.text
 		if categoryRegEx.search(headerText):
 			categories.append(headerText)
-		
-	print categories	
-

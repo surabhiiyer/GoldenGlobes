@@ -2,6 +2,68 @@
 # It also contains the nominees for each category
 
 import re
+import categoriesCrawler
+
+import pdb
+
+bestMovieDramaRegExPatterns = ['best.*picture.*drama', 'best.*motion picture.*drama', 'best.*movie.*drama']
+bestMovieDramaPattern = '|'.join(bestMovieDramaRegExPatterns)
+bestMovieDramaRegEx = re.compile(bestMovieDramaPattern, re.IGNORECASE)
+bestMovieComedyRegExPatterns = ['best.*picture.*comedy', 'best.*motion.*picture.*comedy', 'best.*movie.*comedy']
+bestMovieComedyPattern = '|'.join(bestMovieComedyRegExPatterns)
+bestMovieComedyRegEx = re.compile(bestMovieComedyPattern, re.IGNORECASE)
+bestActorDramaRegEx = re.compile('best.*actor.*drama', re.IGNORECASE)
+bestActorComedyRegEx = re.compile('best.*actor.*comedy', re.IGNORECASE)
+bestActressDramaRegEx = re.compile('best.*actress.*drama', re.IGNORECASE)
+bestActressComedyRegEx = re.compile('best.*actress.*comedy', re.IGNORECASE)
+bestSupportingActorRegExPatterns = ['best.*supporting.*actor', 'best.*actor.*supporting']
+bestSupportingActorPattern = '|'.join(bestSupportingActorRegExPatterns)
+bestSupportingActorRegEx = re.compile(bestSupportingActorPattern, re.IGNORECASE)
+bestSupportingActressRegExPatterns = ['best.*supporting actress', 'best.*actress.*supporting']
+bestSupportingActressPattern = '|'.join(bestSupportingActressRegExPatterns)
+bestSupportingActressRegEx = re.compile(bestSupportingActressPattern, re.IGNORECASE)
+bestDirectorRegEx = re.compile('best director', re.IGNORECASE)
+bestScreenplayRegEx = re.compile('best screenplay', re.IGNORECASE)
+bestOriginalSongRegEx = re.compile('best [original]* song', re.IGNORECASE)
+bestOriginalScoreRegEx = re.compile('best [original]* score', re.IGNORECASE)
+bestForeignLanguageRegEx = re.compile('best foreign language', re.IGNORECASE)
+bestAnimatedFilmRegExPatterns = ['best animated film', 'best animated movie']
+bestAnimatedFilmPattern = '|'.join(bestAnimatedFilmRegExPatterns)
+bestAnimatedFilmRegEX = re.compile(bestAnimatedFilmPattern, re.IGNORECASE)
+bestActorTVSeriesDramaRegExPatterns = ['best.*actor.*television series.*drama', 'best.*actor.*tv.*series.*drama']
+bestActorTVSeriesDramaPattern = '|'.join(bestActorTVSeriesDramaRegExPatterns)
+bestActorTVSeriesDramaRegEX = re.compile(bestActorTVSeriesDramaPattern, re.IGNORECASE)
+bestActorMiniSeriesRegEX = re.compile('best.*actor.*mini.*series', re.IGNORECASE)
+bestActorTVSeriesComedyRegExPatterns = ['best.*actor.*television.*series.*comedy', 'best.*actor.*tv.*series.*comedy']
+bestActorTVSeriesComedyPattern = '|'.join(bestActorTVSeriesComedyRegExPatterns)
+bestActorTVSeriesComedyRegEX = re.compile(bestActorTVSeriesComedyPattern, re.IGNORECASE)
+bestActressTVSeriesDramaRegExPatterns = ['best.*actress.*television series.*drama', 'best.*actress.*tv series.*drama']
+bestActressTVSeriesDramaPattern = '|'.join(bestActressTVSeriesDramaRegExPatterns)
+bestActressTVSeriesDramaRegEX = re.compile(bestActressTVSeriesDramaPattern, re.IGNORECASE)
+bestActressMiniSeriesRegEX = re.compile('best.*actress.*mini.*series', re.IGNORECASE)
+bestActressTVSeriesComedyRegExPatterns = ['best.*actress.*television.*series.*comedy', 'best.*actress.*tv.*series.*comedy']
+bestActressTVSeriesComedyPattern = '|'.join(bestActressTVSeriesComedyRegExPatterns)
+bestActressTVSeriesComedyRegEX = re.compile(bestActressTVSeriesComedyPattern, re.IGNORECASE)
+bestSupportingActorTVSeriesRegExPatterns = ['best.*supporting.*actor.*[tv]*.*[series]*', 'best.*actor.*supporting.*[tv]*.*[series]*']
+bestSupportingActorTVSeriesPattern = '|'.join(bestSupportingActorTVSeriesRegExPatterns)
+bestSupportingActorTVSeriesRegEx = re.compile(bestSupportingActorTVSeriesPattern, re.IGNORECASE)
+bestSupportingActressTVSeriesRegExPatterns = ['best.*supporting.*actress.*[tv]*.*[series]*', 'best.*actress.*supporting.*[tv]*.*[series]*']
+bestSupportingActressTVSeriesPattern = '|'.join(bestSupportingActressTVSeriesRegExPatterns)
+bestSupportingActressTVSeriesRegEx = re.compile(bestSupportingActressTVSeriesPattern, re.IGNORECASE)
+bestTVSeriesComicalRegExPatterns = ['best [television]* series.*[musical or comedy]*']
+bestTVSeriesComicalPattern = '|'.join(bestTVSeriesComicalRegExPatterns)
+bestTVSeriesComicalRegEx = re.compile(bestTVSeriesComicalPattern, re.IGNORECASE)
+bestTVSeriesDramaRegExPatterns = ['best [television]* series.*drama']
+bestTVSeriesDramaPattern = '|'.join(bestTVSeriesDramaRegExPatterns)
+bestTVSeriesDramaRegEx = re.compile(bestTVSeriesDramaPattern, re.IGNORECASE)
+bestMiniSeriesRegEX = re.compile('best mini.*series', re.IGNORECASE)
+
+winnerRegEx = [bestMovieDramaRegEx, bestMovieComedyRegEx, bestActorDramaRegEx, bestActorComedyRegEx,
+bestActressDramaRegEx, bestActressComedyRegEx, bestSupportingActorRegEx, bestSupportingActressRegEx, bestDirectorRegEx,
+bestScreenplayRegEx, bestOriginalSongRegEx, bestOriginalScoreRegEx, bestForeignLanguageRegEx, bestAnimatedFilmRegEX, bestActorTVSeriesDramaRegEX, bestActorMiniSeriesRegEX,
+bestActorTVSeriesComedyRegEX, bestActressTVSeriesDramaRegEX, bestActressMiniSeriesRegEX, bestActressTVSeriesComedyRegEX, bestSupportingActorTVSeriesRegEx,
+bestSupportingActressTVSeriesRegEx, bestTVSeriesComicalRegEx, bestTVSeriesDramaRegEx, bestMiniSeriesRegEX]
+
 
 nomineesMovieDrama = ['Argo', 'Django Unchained', 'Life of Pi', 'Lincoln', 'Zero Dark Thirty']
 nomineesMovieComedy = ['Les Miserables', 'The Best Exotic Marigold Hotel', 'Moonrise Kingdom', 'Salmon Fishing in the Yemen', 'Silver Linings Playbook']
@@ -13,6 +75,9 @@ nominessSupportingActor = ['Christopher Waltz', 'Alan Arkin', 'Leonardo DiCaprio
 nomineesSupportingActress = ['Anne Hathaway', 'Amy Adams', 'Sally Field', 'Helen Hunt', 'Nicole Kidman']
 nomineesBestDirector = ['Ben Affleck', 'Kathryn Bigelow', 'Ang Lee', 'Steven Spielberg', 'Quentin Tarantino']
 nomineesBestScreenplay = ['Quentin Tarantino', 'Chris Terrio', 'Tony Kushner', 'David O. Russel', 'Mark Boal']
+nomineesBestOriginalSong = ['Adele, Paul Epworth', 'Monty Powell , Keith Urban','Taylor Swift, John Paul White, Joy Williams, T Bone Burnett',
+'Claude Michel Schonberg, Alain Boublil, Herbert Kretzmer', 'Jon Bon Jovi']
+nomineesBestOriginalScore = ['Mychael Danna', 'Dario Marianelli', 'Alexandre Desplat', 'Reinhold Heil, Johnny Klimek, Tom Tykwer', 'John Williams'] 
 nomineesForeignLanguageFilm = ['Amour', 'Kon-Tiki', 'The Intouchables', 'A Royal Affair', 'Rust and Bone']
 nomineesBestAnimatedFilm = ['Brave', 'Frankenweenie', 'Hotel Transylvania', 'Rise of the Guardians', 'Wreck-It Ralph']
 nomineesActorTVSeriesDrama = ['Damian Lewis', 'Steve Buscemi', 'Bryan Cranston', 'Jeff Daniels', 'Jon Hamm']
@@ -26,78 +91,37 @@ nomineesSupportingActressSeries = ['Maggie Smith', 'Hayden Panettiere', 'Archie 
 nomineesTelevisionSeriesComedy = ['Girls', 'The Big Bang Theory', 'Episodes', 'Modern Family', 'Smash']
 nomineesTelevisionSeriesDrama = ['Homeland', 'Downton Abbey', 'Boardwalk Empire', 'Breaking Bad', 'The Newsroom']
 nomineesBestMiniSeries = ['Game Change', 'The Girl', 'Hatfields & McCoys', 'The Hour', 'Political Animals']
-nomineesBestOriginalScore = [['Adele', 'Paul Epworth'], ['Monty Powell', 'Keith Urban'], ['Taylor Swift', 'John Paul White', 'Joy Williams', 'T Bone Burnett'],
-['Claude Michel Schonberg', 'Alain Boublil', 'Herbert Kretzmer'], ['Jon Bon Jovi']]
 
-categories = ['Best Motion Picture Drama', 'Best Motion Picture Musical or Comedy', 'Best Actor Drama', 'Best Actor Musical or Comedy', 'Best Actress Drama',
-'Best Actress Musical or Comedy', 'Best Actor in a Supporting Role', 'Best Actress in a Supporting Role', 'Best Director', 'Best Screenplay',
-'Best Foreign Language Film', 'Best Animated Film', 'Best Actor TV Series Drama', 'Best Actor in a Mini-Series', 'Best Actor TV Series Musical or Comedy',
-'Best Actress TV Series Drama', 'Best Actress in a Mini-Series', 'Best Actress TV Series Musical or Comedy', 'Best Performance by an Actor in a Supporting Role in a Series',
-'Best Performance by an Actress in a Supporting Role in a Series', 'Best Television Series - Musical or Comedy', 'Best Television Series - Drama',
-'Best Mini Series']
+
+nomineesByCategory = [nomineesMovieDrama, nomineesMovieComedy, nomineesBestActorDrama, nomineesBestActorMusicalComedy,
+nomineesBestActressDrama, nomineesBestActressComedy, nominessSupportingActor, nomineesSupportingActress, nomineesBestDirector,
+nomineesBestScreenplay, nomineesBestOriginalSong, nomineesBestOriginalScore, nomineesForeignLanguageFilm, nomineesBestAnimatedFilm, nomineesActorTVSeriesDrama, nomineesActorMiniSeries,
+nomineesActorTVSeriesComedy, nomineesActressTVSeriesDrama, nomineesActressMiniSeries, nomineesActressTVSeriesComedy, nomineesSupportingActorSeries, nomineesSupportingActressSeries,
+nomineesTelevisionSeriesComedy, nomineesTelevisionSeriesDrama, nomineesBestMiniSeries]
+
+
+categories = categoriesCrawler.categories
+
+categoryNomineeDictionary = dict()
+
+def createCategoryNomineeDict():
+	#print categories
+	for index in range(0, len(categories)):
+		for regEx in winnerRegEx:
+			if regEx.search(categories[index]):
+				categoryNomineeDictionary[categories[index]] = nomineesByCategory[index]
+				break 
+		#pdb.set_trace()		
+	#print len(categoryNomineeDictionary)			
+
+
+# categories = ['Best Motion Picture Drama', 'Best Motion Picture Musical or Comedy', 'Best Actor Drama', 'Best Actor Musical or Comedy', 'Best Actress Drama',
+# 'Best Actress Musical or Comedy', 'Best Actor in a Supporting Role', 'Best Actress in a Supporting Role', 'Best Director', 'Best Screenplay',
+# 'Best Foreign Language Film', 'Best Animated Film', 'Best Actor TV Series Drama', 'Best Actor in a Mini-Series', 'Best Actor TV Series Musical or Comedy',
+# 'Best Actress TV Series Drama', 'Best Actress in a Mini-Series', 'Best Actress TV Series Musical or Comedy', 'Best Performance by an Actor in a Supporting Role in a Series',
+# 'Best Performance by an Actress in a Supporting Role in a Series', 'Best Television Series - Musical or Comedy', 'Best Television Series - Drama',
+# 'Best Mini Series']
 
 specialAwards = ['Cecil B. DeMille Award']
 deMilleAwardRegEx = re.compile('cecil.*[b]*.*[demille]*', re.IGNORECASE)
 specialAwardsRegEx = [deMilleAwardRegEx]
-
-bestMovieDramaRegExPatterns = ['best picture.*drama', 'best motion picture.*drama', 'best movie.*drama']
-bestMovieDramaPattern = '|'.join(bestMovieDramaRegExPatterns)
-bestMovieDramaRegEx = re.compile(bestMovieDramaPattern, re.IGNORECASE)
-bestMovieComedyRegExPatterns = ['best picture.*comedy', 'best motion picture.*comedy', 'best movie.*comedy']
-bestMovieComedyPattern = '|'.join(bestMovieComedyRegExPatterns)
-bestMovieComedyRegEx = re.compile(bestMovieComedyPattern, re.IGNORECASE)
-bestActorDramaRegEx = re.compile('best actor.*drama', re.IGNORECASE)
-bestActorComedyRegEx = re.compile('best actor.*comedy', re.IGNORECASE)
-bestActressDramaRegEx = re.compile('best actress.*drama', re.IGNORECASE)
-bestActressComedyRegEx = re.compile('best actress.*comedy', re.IGNORECASE)
-bestSupportingActorRegExPatterns = ['best supporting actor', 'best actor.*supporting']
-bestSupportingActorPattern = '|'.join(bestSupportingActorRegExPatterns)
-bestSupportingActorRegEx = re.compile(bestSupportingActorPattern, re.IGNORECASE)
-bestSupportingActressRegExPatterns = ['best supporting actress', 'best actress.*supporting']
-bestSupportingActressPattern = '|'.join(bestSupportingActressRegExPatterns)
-bestSupportingActressRegEx = re.compile(bestSupportingActressPattern, re.IGNORECASE)
-bestDirectorRegEx = re.compile('best director', re.IGNORECASE)
-bestScreenplayRegEx = re.compile('best screenplay', re.IGNORECASE)
-bestForeignLanguageRegEx = re.compile('best foreign language', re.IGNORECASE)
-bestAnimatedFilmRegExPatterns = ['best animated film', 'best animated movie']
-bestAnimatedFilmPattern = '|'.join(bestAnimatedFilmRegExPatterns)
-bestAnimatedFilmRegEX = re.compile(bestAnimatedFilmPattern, re.IGNORECASE)
-bestActorTVSeriesDramaRegExPatterns = ['best actor.*television series.*drama', 'best actor.*tv.*series.*drama']
-bestActorTVSeriesDramaPattern = '|'.join(bestActorTVSeriesDramaRegExPatterns)
-bestActorTVSeriesDramaRegEX = re.compile(bestActorTVSeriesDramaPattern, re.IGNORECASE)
-bestActorMiniSeriesRegEX = re.compile('best actor.*mini.*series', re.IGNORECASE)
-bestActorTVSeriesComedyRegExPatterns = ['best actor.*television.*series.*comedy', 'best actor.*tv.*series.*comedy']
-bestActorTVSeriesComedyPattern = '|'.join(bestActorTVSeriesComedyRegExPatterns)
-bestActorTVSeriesComedyRegEX = re.compile(bestActorTVSeriesComedyPattern, re.IGNORECASE)
-bestActressTVSeriesDramaRegExPatterns = ['best actress.*television series.*drama', 'best actress.*tv series.*drama']
-bestActressTVSeriesDramaPattern = '|'.join(bestActressTVSeriesDramaRegExPatterns)
-bestActressTVSeriesDramaRegEX = re.compile(bestActressTVSeriesDramaPattern, re.IGNORECASE)
-bestActressMiniSeriesRegEX = re.compile('best actress.*mini.*series', re.IGNORECASE)
-bestActressTVSeriesComedyRegExPatterns = ['best actress.*television.*series.*comedy', 'best actress.*tv.*series.*comedy']
-bestActressTVSeriesComedyPattern = '|'.join(bestActressTVSeriesComedyRegExPatterns)
-bestActressTVSeriesComedyRegEX = re.compile(bestActressTVSeriesComedyPattern, re.IGNORECASE)
-bestSupportingActorTVSeriesRegExPatterns = ['best supporting actor.*[tv]*.*[series]*', 'best actor.*supporting.*[tv]*.*[series]*']
-bestSupportingActorTVSeriesPattern = '|'.join(bestSupportingActorTVSeriesRegExPatterns)
-bestSupportingActorTVSeriesRegEx = re.compile(bestSupportingActorTVSeriesPattern, re.IGNORECASE)
-bestSupportingActressTVSeriesRegExPatterns = ['best supporting actress.*[tv]*.*[series]*', 'best actress.*supporting.*[tv]*.*[series]*']
-bestSupportingActressTVSeriesPattern = '|'.join(bestSupportingActressTVSeriesRegExPatterns)
-bestSupportingActressTVSeriesRegEx = re.compile(bestSupportingActressTVSeriesPattern, re.IGNORECASE)
-bestTVSeriesComicalRegExPatterns = ['best [television]* series.*[musical or comedy]*']
-bestTVSeriesComicalPattern = '|'.join(bestTVSeriesComicalRegExPatterns)
-bestTVSeriesComicalRegEx = re.compile(bestTVSeriesComicalPattern, re.IGNORECASE)
-bestTVSeriesDramaRegExPatterns = ['best [television]* series.*drama']
-bestTVSeriesDramaPattern = '|'.join(bestTVSeriesDramaRegExPatterns)
-bestTVSeriesDramaRegEx = re.compile(bestTVSeriesDramaPattern, re.IGNORECASE)
-bestMiniSeriesRegEX = re.compile('best mini.*series', re.IGNORECASE)
-
-winnerRegEx = [bestMovieDramaRegEx, bestMovieComedyRegEx, bestActorDramaRegEx, bestActorComedyRegEx,
-bestActressDramaRegEx, bestActressComedyRegEx, bestSupportingActorRegEx, bestSupportingActressRegEx, bestDirectorRegEx,
-bestScreenplayRegEx, bestForeignLanguageRegEx, bestAnimatedFilmRegEX, bestActorTVSeriesDramaRegEX, bestActorMiniSeriesRegEX,
-bestActorTVSeriesComedyRegEX, bestActressTVSeriesDramaRegEX, bestActressMiniSeriesRegEX, bestActressTVSeriesComedyRegEX, bestSupportingActorTVSeriesRegEx,
-bestSupportingActressTVSeriesRegEx, bestTVSeriesComicalRegEx, bestTVSeriesDramaRegEx, bestMiniSeriesRegEX]
-
-nomineesByCategory = [nomineesMovieDrama, nomineesMovieComedy, nomineesBestActorDrama, nomineesBestActorMusicalComedy,
-nomineesBestActressDrama, nomineesBestActressComedy, nominessSupportingActor, nomineesSupportingActress, nomineesBestDirector,
-nomineesBestScreenplay, nomineesForeignLanguageFilm, nomineesBestAnimatedFilm, nomineesActorTVSeriesDrama, nomineesActorMiniSeries,
-nomineesActorTVSeriesComedy, nomineesActressTVSeriesDrama, nomineesActressMiniSeries, nomineesActressTVSeriesComedy, nomineesSupportingActorSeries, nomineesSupportingActressSeries,
-nomineesTelevisionSeriesComedy, nomineesTelevisionSeriesDrama, nomineesBestMiniSeries]

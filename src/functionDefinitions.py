@@ -175,8 +175,8 @@ def printResults():
     print('Winners by category')
     for index in range(0, len(categories)):
         print(categories[index], winners[index])
-    # for index in range(0, len(specialAwards)):
-    #     print(specialAwards[index], specialAwardWinners[index])                                          
+    for key in range(0, len(specialAwards)):
+        print(specialAwards[index], specialAwardWinners[index])                                          
 
 
 
