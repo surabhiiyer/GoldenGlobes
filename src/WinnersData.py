@@ -83,7 +83,9 @@ bestTVSeriesDramaRegExPatterns = ['best [television]* series.*drama']
 bestTVSeriesDramaPattern = '|'.join(bestTVSeriesDramaRegExPatterns)
 bestTVSeriesDramaRegEx = re.compile(bestTVSeriesDramaPattern, re.IGNORECASE)
 bestMiniSeriesRegEX = re.compile('best mini.*series', re.IGNORECASE)
-bestDressedRegEx = ['best-dressed', 'dress']
+redCarpetRegExPatterns = ['best-dressed', 'dress']
+redCarpetPattern = '|'.join(redCarpetRegExPatterns)
+redCarpetRegEx = re.compile(redCarpetPattern, re.IGNORECASE)
 
 winnerRegEx = [bestMovieDramaRegEx, bestMovieComedyRegEx, bestActorDramaRegEx, bestActorComedyRegEx,
 bestActressDramaRegEx, bestActressComedyRegEx, bestSupportingActorRegEx, bestSupportingActressRegEx, bestDirectorRegEx,
