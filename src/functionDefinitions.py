@@ -75,14 +75,6 @@ hostName = []
 # Method to find the host name from all the tweets
 # INPUT: tweets in array/list format
 # OUPUT: none
-def find_one_host(tweet):
-    hostRegEx = re.compile('hosting', re.IGNORECASE)
-    sentence = sentenceTokenizer.tokenize(tweet)
-    for sentenceIndex in range (0, len(sentence)):
-        # filter the sentences based on the reg ex for host
-        result = hostRegEx.search(sentence[sentenceIndex])
-        if result:
-            return True 
 
 def findHost(tweet):
     # dictionary object to store the bigrams
@@ -157,36 +149,7 @@ def GetMaxWordCount(nominees):
     return maxCount        
 
 
-def lookup_winner(tweet):
-    winnerngramList = dict()
-    # each category 
-    for categoryIndex in range(0, len(winnerRegEx)):
-        #maxWordCount = GetMaxWordCount(nomineesByCategory[categoryIndex])
-        #for index in range(0, len(tweets)):
-        result = winnerRegEx[categoryIndex].search(tweet)
-        if result:
-            return True 
-            # sentence = sentenceTokenizer.tokenize(tweet)    
-            # for sentenceIndex in range(0, len(sentence)):
-            #     text = ' '.join(word for word in sentence[sentenceIndex].split() if word not in stop and word not in blacklistWords)
-            #     tokens = wordTokenizer.tokenize(text)
-            #     if maxWordCount >= 2:
-            #         for key in nltk.bigrams(tokens):
-            #             winner = "%s %s" % key               
-            #             if winner in nomineesByCategory[categoryIndex]:
-            #                 if winner in winnerngramList:
-            #                     return True
-            #     if maxWordCount >= 3:                     
-            #         for key in nltk.trigrams(tokens):
-            #             winner = "%s %s %s" % key 
-            #             if winner in nomineesByCategory[categoryIndex]:
-            #                 if winner in winnerngramList:
-            #                     return True
-            #     if maxWordCount >= 1:
-            #         for unigram in tokens:
-            #             if unigram in nomineesByCategory[categoryIndex]:
-            #                 if unigram in winnerngramList:
-            #                     return True
+
 def findWinners(tweets):
     winnerngramList = dict()
     for categoryIndex in range(0, len(winnerRegEx)):
@@ -221,7 +184,6 @@ def findWinners(tweets):
                                     winnerngramList[unigram] +=1
                                 else:
                                     winnerngramList[unigram] = 1 
-        #pdb.set_trace()
         max = 0        
         for key in winnerngramList:
             if(winnerngramList[key] > max):
@@ -242,6 +204,38 @@ def printResults():
     #pdb.set_trace()
     for index in range(0, len(categories)):
         print(categories[index], winners[index])                     
+
+# The following functions are for Sentiment analysis: 
+
+def find_one_host(tweet):
+    hostRegEx = re.compile('hosting', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)):
+        # filter the sentences based on the reg ex for host
+        result = hostRegEx.search(sentence[sentenceIndex])
+        if result:
+            return True 
+
+def lookup_winner(tweet):
+    winnerngramList = dict()
+    # each category 
+    for categoryIndex in range(0, len(winnerRegEx)):
+        #maxWordCount = GetMaxWordCount(nomineesByCategory[categoryIndex])
+        #for index in range(0, len(tweets)):
+        result = winnerRegEx[categoryIndex].search(tweet)
+        if result:
+            return True 
+
+
+def lookup_best_movie_drama(tweet): 
+    winnerngramList = dict() 
+    bestMovieDramaRegExPatterns = re.compile('best picture.*drama',re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestMovieDramaRegExPatterns.search(sentence[sentenceIndex])
+        if result: 
+            return True 
+
 
 
 

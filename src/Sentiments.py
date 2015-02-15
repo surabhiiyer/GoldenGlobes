@@ -7,7 +7,6 @@ import re
 import json
 import functionDefinitions
 
-
 class Extract_Tweets(): 
 
     def load_data(): 
@@ -42,7 +41,6 @@ class Splitter(object):
         sentences = self.nltk_splitter.tokenize(text)
         tokenized_sentences = [self.nltk_tokenizer.tokenize(sent) for sent in sentences]
         return tokenized_sentences
-
 
 class POSTagger(object):
 
@@ -161,10 +159,13 @@ if __name__ == "__main__":
     host_negative = [] 
     winner_pos = []
     winner_neg = []
-        #extract all the text from tweets 
-    for i in range (0,num_of_tweets):
 
-        print "###ANALYZING TEXT ###",i
+    category1_pos = []
+    category1_neg = [] 
+        #extract all the text from tweets 
+    print "Analyzing tweets."
+    print "This might take some time! "
+    for i in range (0,num_of_tweets):
         
         text = data_13[i]
 
@@ -188,41 +189,74 @@ if __name__ == "__main__":
                 host_positive.append(text)
             if (functionDefinitions.lookup_winner(text)):
                 winner_pos.append(text)
+            if(functionDefinitions.lookup_best_movie_drama(text)):
+                category1_pos.append(text)
         if score < 0: 
             extract_host = Extract_Tweets() 
             if(functionDefinitions.find_one_host(text)): 
                 host_negative.append(text)
             if (functionDefinitions.lookup_winner(text)):
                 winner_neg.append(text)
+            if(functionDefinitions.lookup_best_movie_drama(text)):
+                category1_neg.append(text)
 
         h_p = len(host_positive)
         h_n = len(host_negative)
         w_p = len(winner_pos)
         w_n = len(winner_neg)
         
+        c1_p = len(category1_pos)
+        c1_n = len(category1_neg)
+
         if h_p > 10 or h_n > 10: 
              break 
 
     if (h_p > h_n): 
-        print "#### PEOPLE LOVED THE HOSTS #####" 
-        #print "#### host_positive ####",host_positive
+        print "---------------------------------------------------------------"
+        print "The Audience loved the hosts!!!"
+        print "---------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in host_positive[5:10]: 
+            print x
+
     else: 
-        print "#### PEOPLE HATED THE HOSTS #####" 
-        #print "#### host_negative ####",host_negative
+        print "---------------------------------------------------------------"
+        print "The Audience Hated the hosts!!!"
+        print "---------------------------------------------------------------"
+        print "some of the negative  tweets: " 
+        for x in host_negative[0:5]: 
+            print x
 
     if (w_p > w_n): 
-        print "#### PEOPLE WERE HAPPY WITH THE WINNERS #####" 
-        #print "#### host_positive ####",winner_pos
+        print "-------------------------------------------------------------"
+        print "The Audience had a positive reaction towards the winners!!!"
+        print "-------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in winner_pos[10:30]: 
+            print x
     else: 
-        print "#### PEOPLE WERE UNHAPPY WITH THE WINNERS #####" 
-        #print "#### host_negative ####",winner_neg
+        print "-------------------------------------------------------------"
+        print "The Audience had a negative reaction towards the winners!!!"
+        print "-------------------------------------------------------------"
+        print "some of the negative tweets: " 
+        for x in winner_neg[10:30]: 
+            print x
 
-    print "LENGTH OF H_P",h_p
-    print "LENGTH OF H_N",h_n
-    print "LENGTH OF W_P",w_p
-    print "LENGTH OF W_N",w_n 
 
-
+    if (c1_p > c1_n): 
+        print "-----------------------------------------------------------------"
+        print "The Audience had a positive reaction towards Best Motion Picture!!"
+        print "------------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in category1_pos[10:18]: 
+            print x
+    else: 
+        print "-------------------------------------------------------------"
+        print "The Audience had a negative reaction towards the winners!!!"
+        print "-------------------------------------------------------------"
+        print "some of the negative tweets: " 
+        for x in category1_neg[1:5]: 
+            print x
 
 
 
