@@ -44,24 +44,25 @@ filterRetweetRegEx = re.compile('^RT', re.IGNORECASE)
 # Input: unfiltered tweets
 # Output: filtered tweets 
 def filterTweets(tweets):
+    #file = open("presenters.txt", "w")
     filteredTweets = []
     count = 0
     for tweet in tweets:
         if(filterRegEx.search(tweet) and not filterRetweetRegEx.search(tweet)):
             count += 1
             tweetCleaned = re.sub(r'[^a-zA-Z0-9 ]',r'',tweet)
+            #file.write(tweetCleaned)
+            #file.write("\n")
             filteredTweets.append(tweetCleaned)
-    pprint(count)            
+    #pprint(count)            
     return filteredTweets
 #function filterTweets end
 
 # a list of tokens to be removed from the tweets/sentences under analysis
 blacklistWords = ['golden', 'globes', 'goldenglobes', '#goldenglobes', '#golden']
-#list of hosts
-hosts = []
+
 # list to store all the winners by category
-winners = []
-specialAwardWinners = []
+presenters = []
 
 #reg ex pattern for filtering tweets with information about the host(s)
 hostRegExPatterns = ['host?[s]', 'hosting', 'hosted']
@@ -87,6 +88,8 @@ def findMaxInDictionary(dictionaryObject, resultList):
 
 
 def findHost(tweets):
+    #list of hosts
+    hosts = []
     name = ''
     tweetsScanned = 0
     for tweet in tweets:
@@ -106,13 +109,16 @@ def findHost(tweets):
         if tweetsScanned > 10:
             break                    
     findMaxInDictionary(hostName, hosts)
+    return hosts
+
 
 import WinnersData
 winnerRegEx = WinnersData.winnerRegEx
 nomineesByCategory = WinnersData.nomineesByCategory
-categories = WinnersData.categories 
+categories = WinnersData.categories
 
-def findWinners(tweets):
+def findWinners(tweets, nominees_categorized):
+    winners = []
     winnerngramList = dict()
     for categoryIndex in range(0, len(winnerRegEx)):
         for index in range(0, len(tweets)):
@@ -123,7 +129,7 @@ def findWinners(tweets):
                     text = ' '.join(word for word in sentence[sentenceIndex].split() if word not in stop and word not in blacklistWords)
                     tokens = wordTokenizer.tokenize(text)
                     for unigram in tokens:
-                        for nominee in nomineesByCategory[categoryIndex]:
+                        for nominee in nominees_categorized[categoryIndex]:
                             tokenNominee = wordTokenizer.tokenize(nominee) 
                             if unigram in tokenNominee:
                                 if nominee in winnerngramList:
@@ -139,15 +145,17 @@ def findWinners(tweets):
         for key in winnerngramList:
             if(winnerngramList[key] == max):
                 winners.append(key)   
-        winnerngramList.clear()    
+        winnerngramList.clear()
+    return winners      
 
 
-specialAwards = WinnersData.specialAwards
-specialAwardsRegEx = WinnersData.specialAwardsRegEx
+specialAwards = WinnersData.specialCategories
+specialAwardsRegEx = WinnersData.specialAwardsRegExReordered
 
 specialAwardWinner = dict()
 
 def findWinnersSpecialAward(tweets):
+    specialAwardWinners = []
     for index in range(0, len(specialAwards)):
         specialAwardStopWords = wordTokenizer.tokenize(specialAwards[index])
         for tweet in tweets:
@@ -166,6 +174,78 @@ def findWinnersSpecialAward(tweets):
                         addToDictionary(name, specialAwardWinner)                   
         findMaxInDictionary(specialAwardWinner, specialAwardWinners)
         specialAwardWinner.clear()
+    return specialAwardWinners    
+
+
+presentersRegexPatternList = ['[A-Z][a-z]+ [A-Z][a-z]+ presented', '[A-Z][a-z]+ [A-Z][a-z]+ presenting']
+presentersRegexPattern = "|".join(presentersRegexPatternList)
+presentersRegEx = re.compile(presentersRegexPattern)
+#properNountRegEx = re.compile('[A-Z][a-z]+ [A-Z][a-z]+ presented')
+
+unigramRegExPatternList = ['[A-Z][a-z]+', 'and', 'amp']
+unigramRegExPattern = '|'.join(unigramRegExPatternList)
+unigramRegEx = re.compile('[A-Z][a-z]+')
+
+
+def manipulateDictionary(dictionary):
+    for key in dictionary:
+        token = wordTokenizer.tokenize(key)
+        if dictionary[key] > 1:
+            presenters.append(key)       
+        elif len(token) ==2:
+            presenters.append(key) 
+
+best = ["best"]
+presentersAward = dict()
+
+def linkPresenters(tweets):
+     found = 0
+     for presenter in presenters:
+        for tweet in tweets:
+            if presentersRegEx.search(tweet):
+                if presenter in tweet:
+                    for regexIndex in range(0, len(winnerRegEx)):
+                        if winnerRegEx[regexIndex].search(tweet):
+                            presentersAward[presenter] = categories[regexIndex]
+                    for regexIndex in range(0, len(specialAwardsRegEx)):
+                        if specialAwardsRegEx[regexIndex].search(tweet):
+                            presentersAward[presenter] = specialAwards[regexIndex]            
+
+
+def findPresenters(tweets):
+    file = open("presenters.txt", "w")
+    presentersList = dict()
+    for tweet in tweets:
+        if presentersRegEx.search(tweet):
+            Tweet = re.sub(r'and',r'conjunction', tweet)
+            subTweet = re.sub(r'amp',r'conjunction', Tweet)
+            filteredSentences = ' '.join(word for word in subTweet.split() if word.lower() not in stop and word.lower() not in blacklistWords)
+            file.write(filteredSentences)
+            file.write("\n")
+            unigrams = wordTokenizer.tokenize(filteredSentences)
+            name = ''
+            for unigram in unigrams:
+                if unigram == "presented" or unigram == "presenting":
+                    if name != '':
+                        if name in presentersList:
+                            presentersList[name] += 1
+                        else:
+                            presentersList[name] = 1 
+                    break
+                elif  unigramRegEx.search(unigram):
+                    name += unigram
+                    name += ' '
+                elif unigram == "conjunction":
+                    if name in presentersList:
+                        presentersList[name] += 1
+                    else:
+                        presentersList[name] = 1 
+                    name = ''                             
+    manipulateDictionary(presentersList)
+    linkPresenters(tweets)
+    return presentersList
+    #pdb.set_trace()    
+
                                       
 
 def printResults():
@@ -175,12 +255,57 @@ def printResults():
     print('Winners by category')
     for index in range(0, len(categories)):
         print(categories[index], winners[index])
-    for key in range(0, len(specialAwards)):
-        print(specialAwards[index], specialAwardWinners[index])                                          
+    # for index in range(0, len(specialAwards)):
+    #     print(specialAwards[index], specialAwardWinners[index])                                          
 
 
-
-
+def createJSON():
+    data = { 
+    "metadata": {
+        "year": "",
+        "hosts": {
+            "method": "detected",
+            "method_description": ""
+            },
+        "nominees": {
+            "method": "scraped",
+            "method_description": ""
+            },
+        "awards": {
+            "method": "detected",
+            "method_description": ""
+            }
+        },
+    "data": {
+        "unstructured": {
+            "hosts": [],
+            "winners": [],
+            "awards": [],
+            "presenters": [],
+            "nominees": []
+        },
+        "structured": {
+            "award1": {
+                "nominees": [],
+                "winner": "",
+                "presenters": []
+            },
+            "award2": {
+                "nominees": [],
+                "winner": "",
+                "presenters": []
+            },
+            "award2": {
+                "nominees": [],
+                "winner": "",
+                "presenters": []
+            }
+        }
+    }}
+    data['metadata']['year'] = "2013"
+    data['data']['unstructured']['hosts'] = hosts
+    json_data = json.dumps(data)
+    print json_data
 
             
 

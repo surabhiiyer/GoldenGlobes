@@ -3,7 +3,7 @@
 
 import re
 import categoriesCrawler
-
+import crawler2
 import pdb
 
 bestMovieDramaRegExPatterns = ['best.*picture.*drama', 'best.*motion picture.*drama', 'best.*movie.*drama']
@@ -64,6 +64,7 @@ bestScreenplayRegEx, bestOriginalSongRegEx, bestOriginalScoreRegEx, bestForeignL
 bestActorTVSeriesComedyRegEX, bestActressTVSeriesDramaRegEX, bestActressMiniSeriesRegEX, bestActressTVSeriesComedyRegEX, bestSupportingActorTVSeriesRegEx,
 bestSupportingActressTVSeriesRegEx, bestTVSeriesComicalRegEx, bestTVSeriesDramaRegEx, bestMiniSeriesRegEX]
 
+winnerRegExOrdered = []
 
 nomineesMovieDrama = ['Argo', 'Django Unchained', 'Life of Pi', 'Lincoln', 'Zero Dark Thirty']
 nomineesMovieComedy = ['Les Miserables', 'The Best Exotic Marigold Hotel', 'Moonrise Kingdom', 'Salmon Fishing in the Yemen', 'Silver Linings Playbook']
@@ -93,35 +94,41 @@ nomineesTelevisionSeriesDrama = ['Homeland', 'Downton Abbey', 'Boardwalk Empire'
 nomineesBestMiniSeries = ['Game Change', 'The Girl', 'Hatfields & McCoys', 'The Hour', 'Political Animals']
 
 
-nomineesByCategory = [nomineesMovieDrama, nomineesMovieComedy, nomineesBestActorDrama, nomineesBestActorMusicalComedy,
-nomineesBestActressDrama, nomineesBestActressComedy, nominessSupportingActor, nomineesSupportingActress, nomineesBestDirector,
-nomineesBestScreenplay, nomineesBestOriginalSong, nomineesBestOriginalScore, nomineesForeignLanguageFilm, nomineesBestAnimatedFilm, nomineesActorTVSeriesDrama, nomineesActorMiniSeries,
-nomineesActorTVSeriesComedy, nomineesActressTVSeriesDrama, nomineesActressMiniSeries, nomineesActressTVSeriesComedy, nomineesSupportingActorSeries, nomineesSupportingActressSeries,
-nomineesTelevisionSeriesComedy, nomineesTelevisionSeriesDrama, nomineesBestMiniSeries]
+# nomineesByCategory = [nomineesMovieDrama, nomineesMovieComedy, nomineesBestActorDrama, nomineesBestActorMusicalComedy,
+# nomineesBestActressDrama, nomineesBestActressComedy, nominessSupportingActor, nomineesSupportingActress, nomineesBestDirector,
+# nomineesBestScreenplay, nomineesBestOriginalSong, nomineesBestOriginalScore, nomineesForeignLanguageFilm, nomineesBestAnimatedFilm, nomineesActorTVSeriesDrama, nomineesActorMiniSeries,
+# nomineesActorTVSeriesComedy, nomineesActressTVSeriesDrama, nomineesActressMiniSeries, nomineesActressTVSeriesComedy, nomineesSupportingActorSeries, nomineesSupportingActressSeries,
+# nomineesTelevisionSeriesComedy, nomineesTelevisionSeriesDrama, nomineesBestMiniSeries]
 
+#nomineesObject = crawler2.nominees_categorized
+
+#def populateNominees():
+
+nomineesByCategory = []
 
 categories = categoriesCrawler.categories
+specialCategories = categoriesCrawler.specialCategories
+
+#specialAwards = []
+deMilleAwardRegEx = re.compile('cecil.*[b]*.*[demille]*', re.IGNORECASE)
+missGoldenGlobeAwardRegEx = re.compile('miss.*golden.*globe', re.IGNORECASE)
+specialAwardsRegEx = [deMilleAwardRegEx, missGoldenGlobeAwardRegEx]
+specialAwardsRegExReordered = dict()
 
 categoryNomineeDictionary = dict()
 
-def createCategoryNomineeDict():
-	#print categories
+def createCategoryNomineeDict(nominees_ByCategory):
+	#pdb.set_trace()
 	for index in range(0, len(categories)):
 		for regEx in winnerRegEx:
 			if regEx.search(categories[index]):
-				categoryNomineeDictionary[categories[index]] = nomineesByCategory[index]
+				categoryNomineeDictionary[categories[index]] = nominees_ByCategory[index]
 				break 
-		#pdb.set_trace()		
-	#print len(categoryNomineeDictionary)			
+	for categoryIndex in range(0, len(specialCategories)):
+	 	for regEx in specialAwardsRegEx:
+	 		if regEx.search(specialCategories[categoryIndex]):
+	 			specialAwardsRegExReordered[categoryIndex] = regEx
+	nomineesByCategory = nominees_ByCategory 			
+	#pdb.set_trace()
+ 						
 
-
-# categories = ['Best Motion Picture Drama', 'Best Motion Picture Musical or Comedy', 'Best Actor Drama', 'Best Actor Musical or Comedy', 'Best Actress Drama',
-# 'Best Actress Musical or Comedy', 'Best Actor in a Supporting Role', 'Best Actress in a Supporting Role', 'Best Director', 'Best Screenplay',
-# 'Best Foreign Language Film', 'Best Animated Film', 'Best Actor TV Series Drama', 'Best Actor in a Mini-Series', 'Best Actor TV Series Musical or Comedy',
-# 'Best Actress TV Series Drama', 'Best Actress in a Mini-Series', 'Best Actress TV Series Musical or Comedy', 'Best Performance by an Actor in a Supporting Role in a Series',
-# 'Best Performance by an Actress in a Supporting Role in a Series', 'Best Television Series - Musical or Comedy', 'Best Television Series - Drama',
-# 'Best Mini Series']
-
-specialAwards = ['Cecil B. DeMille Award']
-deMilleAwardRegEx = re.compile('cecil.*[b]*.*[demille]*', re.IGNORECASE)
-specialAwardsRegEx = [deMilleAwardRegEx]
