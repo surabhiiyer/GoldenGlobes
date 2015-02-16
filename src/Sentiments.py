@@ -162,7 +162,33 @@ if __name__ == "__main__":
 
     category1_pos = []
     category1_neg = [] 
-        #extract all the text from tweets 
+
+    director_pos = []
+    director_neg = [] 
+
+    miniSeries_pos = [] 
+    miniSeries_neg = [] 
+
+    actorDrama_pos = []
+    actorDrama_neg = [] 
+
+    actorComedy_pos = []
+    actorComedy_neg = [] 
+
+    screenplay_p = []
+    screenplay_n = []
+
+    #Best supporting actress 
+    actress_tvseries_p = []
+    actress_tvseries_n = []
+
+    movieDrama_p = [] 
+    movieDrama_n = []
+
+    movieComedy_p = []
+    movieComedy_n = []
+
+    #extract all the text from tweets 
     print "Analyzing tweets."
     print "This might take some time! "
     for i in range (0,num_of_tweets):
@@ -191,6 +217,28 @@ if __name__ == "__main__":
                 winner_pos.append(text)
             if(functionDefinitions.lookup_best_movie_drama(text)):
                 category1_pos.append(text)
+
+            if(functionDefinitions.lookup_best_dir(text)):
+                director_pos.append(text)
+
+            if(functionDefinitions.lookup_best_actorDrama(text)):
+                actorDrama_pos.append(text)
+
+            if(functionDefinitions.lookup_best_actorComedy(text)):
+                actorComedy_pos.append(text)
+
+            if(functionDefinitions.lookup_best_screenPlay(text)):
+               screenplay_p.append(text)
+
+            if(functionDefinitions.lookup_best_seriesActress(text)):
+               actress_tvseries_p.append(text)
+
+            if(functionDefinitions.lookup_best_MovieDrama(text)):
+               movieDrama_p.append(text)
+
+            if(functionDefinitions.lookup_best_MovieComedy(text)):
+               movieComedy_p.append(text)
+
         if score < 0: 
             extract_host = Extract_Tweets() 
             if(functionDefinitions.find_one_host(text)): 
@@ -199,6 +247,23 @@ if __name__ == "__main__":
                 winner_neg.append(text)
             if(functionDefinitions.lookup_best_movie_drama(text)):
                 category1_neg.append(text)
+            if(functionDefinitions.lookup_best_dir(text)):
+                director_neg.append(text)
+
+            if(functionDefinitions.lookup_best_actorDrama(text)):
+                actorDrama_neg.append(text)
+            if(functionDefinitions.lookup_best_screenPlay(text)):
+               screenplay_n.append(text)
+
+            if(functionDefinitions.lookup_best_seriesActress(text)):
+               actress_tvseries_n.append(text)
+
+            if(functionDefinitions.lookup_best_MovieDrama(text)):
+               movieDrama_n.append(text)
+
+            if(functionDefinitions.lookup_best_MovieComedy(text)):
+               movieComedy_n.append(text)
+
 
         h_p = len(host_positive)
         h_n = len(host_negative)
@@ -207,6 +272,31 @@ if __name__ == "__main__":
         
         c1_p = len(category1_pos)
         c1_n = len(category1_neg)
+
+        dir_p = len(director_pos)
+        dir_n = len(director_neg)
+
+        mini_p = len(miniSeries_pos) 
+        mini_n = len(miniSeries_neg)
+
+        act_drama_p = len(actorDrama_pos) 
+        act_drama_n = len(actorDrama_neg)
+
+
+        act_comedy_p = len(actorComedy_pos) 
+        act_comedy_n = len(actorComedy_neg)
+
+        sp_p = len(screenplay_p) 
+        sp_n = len(screenplay_n)
+
+        atvs_p = len(actress_tvseries_p)
+        atvs_n = len(actress_tvseries_n)
+
+        md_p = len(movieDrama_p)
+        md_n = len(movieDrama_n)
+
+        mc_p = len(movieComedy_p)
+        mc_n = len(movieComedy_n)
 
         if h_p > 10 or h_n > 10: 
              break 
@@ -248,15 +338,117 @@ if __name__ == "__main__":
         print "The Audience had a positive reaction towards Best Motion Picture!!"
         print "------------------------------------------------------------------"
         print "some of the positive tweets: " 
-        for x in category1_pos[10:18]: 
+        for x in category1_pos[0:3]: 
             print x
     else: 
-        print "-------------------------------------------------------------"
-        print "The Audience had a negative reaction towards the winners!!!"
+        print "--------------------------------------------------------------------"
+        print "The Audience had a negative reaction towards Best Motion Picture!!"
         print "-------------------------------------------------------------"
         print "some of the negative tweets: " 
         for x in category1_neg[1:5]: 
             print x
 
+    if (dir_p > dir_n): 
+        print "-----------------------------------------------------------------"
+        print "The Audience had a positive reaction towards Best Director!!"
+        print "------------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in director_pos[0:3]: 
+            print x
+    else: 
+        print "-------------------------------------------------------------"
+        print "The Audience had a negative reaction towards the Best Director!!!"
+        print "-------------------------------------------------------------"
+        print "some of the negative tweets: " 
+        for x in director_neg[1:5]: 
+            print x
 
+    if (act_drama_p > act_drama_n): 
+        print "-----------------------------------------------------------------"
+        print "The Audience had a positive reaction towards Best Actor, Drama!"
+        print "------------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in actorDrama_pos[0:3]: 
+            print x
+    else: 
+        print "-------------------------------------------------------------------"
+        print "The Audience had a negative reaction towards the Best Actor, Drama!!!"
+        print "--------------------------------------------------------------------"
+        print "some of the negative tweets: " 
+        for x in actorDrama_neg[0:3]: 
+            print x
 
+    if (act_comedy_p > act_comedy_n): 
+        print "-----------------------------------------------------------------"
+        print "The Audience had a positive reaction towards Best Actor, Comedy!"
+        print "------------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in actorComedy_pos[0:3]: 
+            print x
+    else: 
+        print "-------------------------------------------------------------------"
+        print "The Audience had a negative reaction towards the Best Actor, Comedy!!!"
+        print "--------------------------------------------------------------------"
+        print "some of the negative tweets: " 
+        for x in actorComedy_neg[0:3]: 
+            print x
+
+    if (sp_p > sp_n): 
+        print "-----------------------------------------------------------------"
+        print "The Audience had a positive reaction towards Best Screen Play!"
+        print "------------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in screenplay_p[0:3]: 
+            print x
+    else: 
+        print "-------------------------------------------------------------------"
+        print "The Audience had a negative reaction towards the Best ScreenPlay!!!"
+        print "--------------------------------------------------------------------"
+        print "some of the negative tweets: " 
+        for x in screenplay_n[0:3]: 
+            print x
+
+    if (atvs_p > atvs_n): 
+        print "----------------------------------------------------------------------------"
+        print "The Audience had a positive reaction towards Best Supporting Actress!!!"
+        print "-----------------------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in actress_tvseries_p[0:3]: 
+            print x
+    else: 
+        print "---------------------------------------------------------------------------------"
+        print "The Audience had a negative reaction towards the  Best Supporting Actress!!!"
+        print "---------------------------------------------------------------------------------"
+        print "some of the negative tweets: " 
+        for x in actress_tvseries_n[0:3]: 
+            print 
+
+    if (md_p > md_n): 
+        print "----------------------------------------------------------------------------"
+        print "The Audience had a positive reaction towards Best Movie Drama"
+        print "-----------------------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in movieDrama_p[0:3]: 
+            print x
+    else: 
+        print "---------------------------------------------------------------------------------"
+        print "The Audience had a negative reaction towards the Best Movie Drama!"
+        print "---------------------------------------------------------------------------------"
+        print "some of the negative tweets: " 
+        for x in movieDrama_n[0:3]: 
+            print x
+
+    if (mc_p > mc_n): 
+        print "----------------------------------------------------------------------------"
+        print "The Audience had a positive reaction towards Best Movie Comedy!"
+        print "-----------------------------------------------------------------------------"
+        print "some of the positive tweets: " 
+        for x in movieComedy_p[0:3]: 
+            print x
+    else: 
+        print "---------------------------------------------------------------------------------"
+        print "The Audience had a negative reaction towards the Best Movie Comedy!"
+        print "---------------------------------------------------------------------------------"
+        print "some of the negative tweets: " 
+        for x in movieComedy_n[0:3]: 
+            print x

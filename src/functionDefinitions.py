@@ -236,17 +236,92 @@ def lookup_best_movie_drama(tweet):
         if result: 
             return True 
 
+def lookup_best_dir(tweet):
+    winnerngramList = dict() 
+    bestDirectorRegEx = re.compile('best director', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestDirectorRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True 
 
 
+def lookup_best_miniSeries(tweet):
+    winnerngramList = dict() 
+    bestMiniSeriesRegEX = re.compile('best mini.*series', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestMiniSeriesRegEX.search(sentence[sentenceIndex])
+        if result: 
+            return True 
+
+def lookup_best_actorDrama(tweet):
+    winnerngramList = dict() 
+    bestActorDramaRegEx = re.compile('best actor.*drama', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestActorDramaRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True 
 
 
+def lookup_best_actorComedy(tweet):
+    winnerngramList = dict() 
+    bestActorComedyRegEx = re.compile('best actor.*comedy', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestActorComedyRegEx .search(sentence[sentenceIndex])
+        if result: 
+            return True 
 
+def lookup_best_screenPlay(tweet):
+    winnerngramList = dict() 
+    bestScreenplayRegEx = re.compile('best screenplay', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestScreenplayRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True 
+
+def lookup_best_animated(tweet):
+    bestAnimatedFilmRegExPatterns = ['best animated film', 'best animated movie']
+    bestAnimatedFilmPattern = '|'.join(bestAnimatedFilmRegExPatterns)
+    bestAnimatedFilmRegEX = re.compile(bestAnimatedFilmPattern, re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestAnimatedFilmRegEX.search(sentence[sentenceIndex])
+        if result: 
+            return True 
             
 
+def lookup_best_seriesActress(tweet): 
+    bestSupportingActressRegExPatterns = ['best supporting actress', 'best actress.*supporting']
+    bestSupportingActressPattern = '|'.join(bestSupportingActressRegExPatterns)
+    bestSupportingActressRegEx = re.compile(bestSupportingActressPattern, re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result =  bestSupportingActressRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True  
 
-         
-            
+def lookup_best_MovieDrama(tweet):
+    bestMovieDramaRegExPatterns = ['best picture.*drama', 'best motion picture.*drama', 'best movie.*drama']
+    bestMovieDramaPattern = '|'.join(bestMovieDramaRegExPatterns)
+    bestMovieDramaRegEx = re.compile(bestMovieDramaPattern, re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestMovieDramaRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True  
 
-
+def lookup_best_MovieComedy(tweet): 
+    bestMovieComedyRegExPatterns = ['best picture.*comedy', 'best motion picture.*comedy', 'best movie.*comedy']
+    bestMovieComedyPattern = '|'.join(bestMovieComedyRegExPatterns)
+    bestMovieComedyRegEx = re.compile(bestMovieComedyPattern, re.IGNORECASE)   
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestMovieComedyRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True  
 
 
