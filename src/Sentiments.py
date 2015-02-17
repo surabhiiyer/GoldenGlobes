@@ -147,6 +147,7 @@ def sentence_score(sentence_tokens, previous_token, acum_score):
 def sentiment_score(review):
     return sum([sentence_score(sentence, None, 0.0) for sentence in review])
 
+
 def sentimentEntryPoint(tweets):
 
     #tweets = [] 
@@ -189,8 +190,8 @@ def sentimentEntryPoint(tweets):
     movieComedy_n = []
 
     #extract all the text from tweets 
-    print "Analyzing tweets."
-    print "This might take some time! "
+    #print "Analyzing tweets."
+    #print "This might take some time! "
     for i in range (0,num_of_tweets):
         
         text = data_13[i]
@@ -300,7 +301,7 @@ def sentimentEntryPoint(tweets):
 
         if h_p > 10 or h_n > 10: 
              break 
-
+             
     if (h_p > h_n): 
         print "---------------------------------------------------------------"
         print "The Audience loved the hosts!!!"

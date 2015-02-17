@@ -5,7 +5,7 @@ from nltk.util import ngrams
 import urllib
 import HTMLParser
 
-#for debugging purposes only, to be removed
+#for debugging purposes only
 from pprint import pprint
 import pdb
 
@@ -30,6 +30,7 @@ wordTokenizer = TreebankWordTokenizer()
 # to be used to tokenize sentences in a tweet
 sentenceTokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
+#import all the stop words
 from nltk.corpus import stopwords
 stop = stopwords.words('english')
 
@@ -38,24 +39,20 @@ filterRegExPatterns = ['host?[s]', 'hosting', 'hosted', 'won best', 'winner', 'w
 'worst dressed', 'worst dress'] 
 filterRegExPatternJoin = "|".join(filterRegExPatterns)
 filterRegEx = re.compile(filterRegExPatternJoin, re.IGNORECASE)
-
+#re ex for removing all the retweets
 filterRetweetRegEx = re.compile('^RT', re.IGNORECASE)
 
 # Method to filter the tweets, removing tweets that do not make sense
 # Input: unfiltered tweets
 # Output: filtered tweets 
 def filterTweets(tweets):
-    #file = open("presenters.txt", "w")
     filteredTweets = []
     count = 0
     for tweet in tweets:
         if(filterRegEx.search(tweet) and not filterRetweetRegEx.search(tweet)):
             count += 1
             tweetCleaned = re.sub(r'[^a-zA-Z0-9 ]',r'',tweet)
-            #file.write(tweetCleaned)
-            #file.write("\n")
-            filteredTweets.append(tweetCleaned)
-    #pprint(count)            
+            filteredTweets.append(tweetCleaned)           
     return filteredTweets
 #function filterTweets end
 
@@ -67,15 +64,21 @@ blacklistWords = ['golden', 'globes', 'goldenglobes', '#goldenglobes', '#golden'
 hostRegExPatterns = ['host?[s]', 'hosting', 'hosted']
 hostRegExPatternJoint = '|'.join(hostRegExPatterns)
 hostRegEx = re.compile(hostRegExPatternJoint, re.IGNORECASE)
-# a list to store the host name. TODO: to be replaced by some meaningful structure
+# a dictionary to store all the probable host names.
 hostName = dict()
+#list of hosts, formed after manipulating the hostName dictionary
+hosts = []
 
+#Method to increase the frequency of a given key, in the dictionary
+#INPUT: key to be increased, dictionaryObject: dictionary to refer to, should be global
 def addToDictionary(key, dictionaryObject):
     if key in dictionaryObject:
         dictionaryObject[key] += 1
     else:
         dictionaryObject[key] = 1    
 
+#Method to find the most frequently occuring key in a dictionary
+#INPUT: dictionary on which to operate, resultList: list contaning the most frequent key value
 def findMaxInDictionary(dictionaryObject, resultList):
     max = 0
     for key in dictionaryObject:
@@ -85,56 +88,65 @@ def findMaxInDictionary(dictionaryObject, resultList):
         if max == dictionaryObject[key]:
             resultList.append(key)        
 
-
+#Method to find the hosts
+#INPUT: tweets
 def findHost(tweets):
-    #list of hosts
-    hosts = []
     name = ''
     tweetsScanned = 0
     for tweet in tweets:
         if hostRegEx.search(tweet):
             tweetsScanned += 1
+            #remove all stop words and black listed words
             filterText = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords)
             unigram = wordTokenizer.tokenize(filterText)
             for bigram in nltk.bigrams(unigram):
                 noun = 0
                 posTag = nltk.pos_tag(bigram)
                 for(data, tag) in posTag:
+                    #Check for proper nouns
                     if tag == 'NNP':
                         noun += 1
+                #if both the words in bigram are proper nouns, mark the bigram as probable host name        
                 if noun == 2:
                     name = "%s %s" % bigram
                     addToDictionary(name, hostName)
+        # 10 tweets on hosts are enough to get their names. This can be changed at the cost of processing time.            
         if tweetsScanned > 10:
             break                    
     findMaxInDictionary(hostName, hosts)
-    return hosts
 
-
+# import all the information about the nominees, categories, and regular expressions for each category
 import WinnersData
 winnerRegEx = WinnersData.winnerRegEx
 nomineesByCategory = WinnersData.nomineesByCategory
 categories = WinnersData.categories
 
+# a list to store all the winners. The index will match the category.
+# if index 0 represents Best Actor in categories, then the same index in winners list will represent the winner    
+winners = []
+
+#Method to find the winners
+#INPUT: tweets, nominees indexed according to categories
 def findWinners(tweets, nominees_categorized):
-    winners = []
+    # a dictionary to store all the probable winners for a category, tentatively
     winnerngramList = dict()
-    for categoryIndex in range(0, len(winnerRegEx)):
-        for index in range(0, len(tweets)):
-            result = winnerRegEx[categoryIndex].search(tweets[index])
-            if result:
-                sentence = sentenceTokenizer.tokenize(tweets[index])    
-                for sentenceIndex in range(0, len(sentence)):
-                    text = ' '.join(word for word in sentence[sentenceIndex].split() if word not in stop and word not in blacklistWords)
-                    tokens = wordTokenizer.tokenize(text)
-                    for unigram in tokens:
-                        for nominee in nominees_categorized[categoryIndex]:
-                            tokenNominee = wordTokenizer.tokenize(nominee) 
-                            if unigram in tokenNominee:
-                                if nominee in winnerngramList:
-                                    winnerngramList[nominee] +=1
-                                else:
-                                    winnerngramList[nominee] = 1 
+    for categoryIndex in range(0, len(categories)):
+        for tweet in tweets:
+            #Apply the reg ex for the current category
+            if winnerRegEx[categoryIndex].search(tweet):
+                text = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords)
+                #After removing stop words, create unigrams from the tweet
+                unigrams = wordTokenizer.tokenize(text)
+                for unigram in unigrams:
+                    # if unigram exists in nominees, the nominee is probably the winner.
+                    # words like the, a have been removed. We will mostly end up checking Proper/Common Nouns
+                    for nominee in nominees_categorized[categoryIndex]:
+                        if unigram in nominee:
+                            if nominee in winnerngramList:
+                                winnerngramList[nominee] +=1
+                            else:
+                                winnerngramList[nominee] = 1 
+        # of all the probable winners, find the nominee occuring most frequently in the dictionary and mark him/her as winner
         max = 0        
         for key in winnerngramList:
             if(winnerngramList[key] > max):
@@ -144,17 +156,21 @@ def findWinners(tweets, nominees_categorized):
         for key in winnerngramList:
             if(winnerngramList[key] == max):
                 winners.append(key)   
-        winnerngramList.clear()
-    return winners      
+        winnerngramList.clear()     
 
 
+#import all the data for special awards - categories and regex for each category
 specialAwards = WinnersData.specialCategories
 specialAwardsRegEx = WinnersData.specialAwardsRegExReordered
 
+# list containing the special award winners, one for each category
+specialAwardWinners = []
+# dictionary containing all probable winners of a special award
 specialAwardWinner = dict()
 
+# Method to find winners of special awards
+# Its implementation is similar to the method to find hosts
 def findWinnersSpecialAward(tweets):
-    specialAwardWinners = []
     for index in range(0, len(specialAwards)):
         specialAwardStopWords = wordTokenizer.tokenize(specialAwards[index])
         for tweet in tweets:
@@ -173,20 +189,25 @@ def findWinnersSpecialAward(tweets):
                         addToDictionary(name, specialAwardWinner)                   
         findMaxInDictionary(specialAwardWinner, specialAwardWinners)
         specialAwardWinner.clear()
-    return specialAwardWinners    
 
 
+# Regexes for finding tweets that talk about presenters
 presentersRegexPatternList = ['[A-Z][a-z]+ [A-Z][a-z]+ presented', '[A-Z][a-z]+ [A-Z][a-z]+ presenting']
 presentersRegexPattern = "|".join(presentersRegexPatternList)
 presentersRegEx = re.compile(presentersRegexPattern)
-#properNountRegEx = re.compile('[A-Z][a-z]+ [A-Z][a-z]+ presented')
 
 unigramRegExPatternList = ['[A-Z][a-z]+', 'and', 'amp']
 unigramRegExPattern = '|'.join(unigramRegExPatternList)
 unigramRegEx = re.compile('[A-Z][a-z]+')
 
+best = ["best"]
+#dictionary of probable presenters
+presentersAward = dict()
+# a final list of presenters
 presenters = []
 
+# Method to get presenters from a dictionary of probable presenters
+# If a name occurs less than once or has more than two words, discard the name
 def manipulateDictionary(dictionary):
     for key in dictionary:
         token = wordTokenizer.tokenize(key)
@@ -195,9 +216,11 @@ def manipulateDictionary(dictionary):
         elif len(token) ==2:
             presenters.append(key) 
 
-best = ["best"]
-presentersAward = dict()
-
+# Method to link an award with presenter(s)
+# For each presenter, iterate through each tweet, and use reg ex for award categories
+# to find out which category the presenter presented the award for
+# The number of tweets talking about presenters boils down to 60-70. So, the number of iterations can be 
+# ignored for sake of accuracy.
 def linkPresenters(tweets):
      found = 0
      for presenter in presenters:
@@ -211,7 +234,7 @@ def linkPresenters(tweets):
                         if specialAwardsRegEx[regexIndex].search(tweet):
                             presentersAward[presenter] = specialAwards[regexIndex]            
 
-
+# Method to find the presenters
 def findPresenters(tweets):
     presentersList = dict()
     for tweet in tweets:
@@ -255,7 +278,8 @@ regExRivalriesPatternList = ['vs', 'vs.', 'versus', 'against']
 regExRivalriesPatterns = '|'.join(regExRivalriesPatternList)
 regExRivalries = re.compile(regExRivalriesPatterns, re.IGNORECASE)
 
-wordsToIgnoreRedCarpet = ["best", "dressed", "worst", "dress", "red", "carpet", "photos", "pics", "video"] 
+wordsToIgnoreRedCarpet = ["best", "dressed", "worst", "dress", "red", "carpet", "photos", "pics", "video", "award", "awards", "celebs",
+"celebreties", "celebrity", "dresses", "see", "look", "stole", "stunning"] 
 
 bestDressedList = []
 worstDressedList = []
@@ -280,19 +304,6 @@ def getRedCarpetInfo(tweets):
     mostTalkedAbout = dict()
     rivalries = dict()
     for tweet in tweets:
-        if regExRedCarpet.search(tweet):
-            filteredSentences = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords
-                and word.lower() not in wordsToIgnoreRedCarpet)
-            unigrams = wordTokenizer.tokenize(filteredSentences)
-            for bigram in nltk.bigrams(unigrams):
-                    posTags = nltk.pos_tag(bigram)
-                    noun = 0
-                    for (data, tag) in posTags:
-                        if tag == 'NNP':
-                            noun += 1
-                    if noun == 2:
-                        name = "%s %s" % bigram
-                        addToDictionary(name, mostTalkedAbout)
         if regExRivalries.search(tweet):
             filteredSentences = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords
                 and word.lower() not in wordsToIgnoreRedCarpet)
@@ -334,7 +345,6 @@ def getRedCarpetInfo(tweets):
                         addToDictionary(name, worstDressed)                
     getTopN(bestDressed, bestDressedList, 5)                    
     getTopN(worstDressed, worstDressedList, 5)
-    getTopN(mostTalkedAbout, mostTalkedAboutList, 5)
     getTopN(rivalries, rivalriesList, 2)
               
                         
@@ -458,7 +468,7 @@ def lookup_best_MovieComedy(tweet):
         if result: 
             return True                                           
     
-
+##Sentiment analysis terminates
             
 
 

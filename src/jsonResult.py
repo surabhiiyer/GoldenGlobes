@@ -6,15 +6,15 @@ def prepareJson(year, hosts, allWinners, allCategories, allPresenters, allNomine
         "year": "",
         "hosts": {
             "method": "detected",
-            "method_description": ""
+            "method_description": "Filter the tweets based on keywords like 'hosts', 'hosting', 'host', using regular expressions. Further filter by removing all stop words from each tweet. Find all the proper nouns in these tweets and add them to a dictionary. Naturally, the most frequently occuring Proper Nouns would be the names of the host."
             },
         "nominees": {
             "method": "scraped",
-            "method_description": ""
+            "method_description": "Using Beautiful Soup, the nominees were scraped from the website http://www.imdb.com/event/ev0000292/(year)."
             },
         "awards": {
             "method": "detected",
-            "method_description": ""
+            "method_description": "Create a regular expression for each of the award categories. For evaluating winner of each category, use its dedicated RegEx to filter tweets that talking about it. Remove all stop words from these filtered tweets. Extract unigrams from these tweets, "
             }
         },
     "data": {
