@@ -34,7 +34,8 @@ from nltk.corpus import stopwords
 stop = stopwords.words('english')
 
 # reg ex for filtering the tweets.
-filterRegExPatterns = ['host?[s]', 'hosting', 'hosted', 'won best', 'winner', 'wins', 'presented', 'presenting'] 
+filterRegExPatterns = ['host?[s]', 'hosting', 'hosted', 'won best', 'winner', 'wins', 'presented', 'presenting', 'red carpet', 'best dressed', 'best dress', 
+'worst dressed', 'worst dress'] 
 filterRegExPatternJoin = "|".join(filterRegExPatterns)
 filterRegEx = re.compile(filterRegExPatternJoin, re.IGNORECASE)
 
@@ -58,11 +59,9 @@ def filterTweets(tweets):
     return filteredTweets
 #function filterTweets end
 
+
 # a list of tokens to be removed from the tweets/sentences under analysis
 blacklistWords = ['golden', 'globes', 'goldenglobes', '#goldenglobes', '#golden']
-
-# list to store all the winners by category
-presenters = []
 
 #reg ex pattern for filtering tweets with information about the host(s)
 hostRegExPatterns = ['host?[s]', 'hosting', 'hosted']
@@ -186,6 +185,7 @@ unigramRegExPatternList = ['[A-Z][a-z]+', 'and', 'amp']
 unigramRegExPattern = '|'.join(unigramRegExPatternList)
 unigramRegEx = re.compile('[A-Z][a-z]+')
 
+presenters = []
 
 def manipulateDictionary(dictionary):
     for key in dictionary:
@@ -213,15 +213,12 @@ def linkPresenters(tweets):
 
 
 def findPresenters(tweets):
-    file = open("presenters.txt", "w")
     presentersList = dict()
     for tweet in tweets:
         if presentersRegEx.search(tweet):
             Tweet = re.sub(r'and',r'conjunction', tweet)
             subTweet = re.sub(r'amp',r'conjunction', Tweet)
             filteredSentences = ' '.join(word for word in subTweet.split() if word.lower() not in stop and word.lower() not in blacklistWords)
-            file.write(filteredSentences)
-            file.write("\n")
             unigrams = wordTokenizer.tokenize(filteredSentences)
             name = ''
             for unigram in unigrams:
@@ -243,69 +240,224 @@ def findPresenters(tweets):
                     name = ''                             
     manipulateDictionary(presentersList)
     linkPresenters(tweets)
-    return presentersList
-    #pdb.set_trace()    
 
-                                      
+regExRedCarpet = re.compile('red carpet', re.IGNORECASE)
+    
+regExBestDressPatternList = ['best dress', 'best dressed']
+regExBestDressPatterns = '|'.join(regExBestDressPatternList)
+regExBestDress = re.compile(regExBestDressPatterns, re.IGNORECASE)
 
-def printResults():
-    print('Hosted by:')
-    for name in hosts:
-        print(name)
-    print('Winners by category')
-    for index in range(0, len(categories)):
-        print(categories[index], winners[index])
-    # for index in range(0, len(specialAwards)):
-    #     print(specialAwards[index], specialAwardWinners[index])                                          
+regExWorstDressPatternList = ['worst dress', 'worst dressed']
+regExWorstDressPatterns = '|'.join(regExWorstDressPatternList)
+regExWorstDress = re.compile(regExWorstDressPatterns, re.IGNORECASE)
+
+regExRivalriesPatternList = ['vs', 'vs.', 'versus', 'against']
+regExRivalriesPatterns = '|'.join(regExRivalriesPatternList)
+regExRivalries = re.compile(regExRivalriesPatterns, re.IGNORECASE)
+
+wordsToIgnoreRedCarpet = ["best", "dressed", "worst", "dress", "red", "carpet", "photos", "pics", "video"] 
+
+bestDressedList = []
+worstDressedList = []
+mostTalkedAboutList = []
+rivalriesList = []
+
+def getTopN(dictionaryObject, list, n):
+    for count in range(0,n):
+        maxKey = ''
+        max = 0
+        for key in dictionaryObject:
+            if (dictionaryObject[key] > max):           
+                max = dictionaryObject[key]
+                maxKey = key
+        list.append(maxKey)
+        dictionaryObject.pop(maxKey)        
 
 
-def createJSON():
-    data = { 
-    "metadata": {
-        "year": "",
-        "hosts": {
-            "method": "detected",
-            "method_description": ""
-            },
-        "nominees": {
-            "method": "scraped",
-            "method_description": ""
-            },
-        "awards": {
-            "method": "detected",
-            "method_description": ""
-            }
-        },
-    "data": {
-        "unstructured": {
-            "hosts": [],
-            "winners": [],
-            "awards": [],
-            "presenters": [],
-            "nominees": []
-        },
-        "structured": {
-            "award1": {
-                "nominees": [],
-                "winner": "",
-                "presenters": []
-            },
-            "award2": {
-                "nominees": [],
-                "winner": "",
-                "presenters": []
-            },
-            "award2": {
-                "nominees": [],
-                "winner": "",
-                "presenters": []
-            }
-        }
-    }}
-    data['metadata']['year'] = "2013"
-    data['data']['unstructured']['hosts'] = hosts
-    json_data = json.dumps(data)
-    print json_data
+def getRedCarpetInfo(tweets):
+    bestDressed = dict()
+    worstDressed = dict()
+    mostTalkedAbout = dict()
+    rivalries = dict()
+    for tweet in tweets:
+        if regExRedCarpet.search(tweet):
+            filteredSentences = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords
+                and word.lower() not in wordsToIgnoreRedCarpet)
+            unigrams = wordTokenizer.tokenize(filteredSentences)
+            for bigram in nltk.bigrams(unigrams):
+                    posTags = nltk.pos_tag(bigram)
+                    noun = 0
+                    for (data, tag) in posTags:
+                        if tag == 'NNP':
+                            noun += 1
+                    if noun == 2:
+                        name = "%s %s" % bigram
+                        addToDictionary(name, mostTalkedAbout)
+        if regExRivalries.search(tweet):
+            filteredSentences = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords
+                and word.lower() not in wordsToIgnoreRedCarpet)
+            unigrams = wordTokenizer.tokenize(filteredSentences)
+            for bigram in nltk.bigrams(unigrams):
+                    posTags = nltk.pos_tag(bigram)
+                    noun = 0
+                    for (data, tag) in posTags:
+                        if tag == 'NNP':
+                            noun += 1
+                    if noun == 2:
+                        name = "%s %s" % bigram
+                        addToDictionary(name, rivalries)                
+        if regExBestDress.search(tweet):
+            filteredSentences = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords
+                and word.lower() not in wordsToIgnoreRedCarpet)
+            unigrams = wordTokenizer.tokenize(filteredSentences)
+            for bigram in nltk.bigrams(unigrams):
+                    posTags = nltk.pos_tag(bigram)
+                    noun = 0
+                    for (data, tag) in posTags:
+                        if tag == 'NNP':
+                            noun += 1
+                    if noun == 2:
+                        name = "%s %s" % bigram
+                        addToDictionary(name, bestDressed)
+        if regExWorstDress.search(tweet):
+            filteredSentences = ' '.join(word for word in tweet.split() if word.lower() not in stop and word.lower() not in blacklistWords 
+                and word.lower() not in wordsToIgnoreRedCarpet)
+            unigrams = wordTokenizer.tokenize(filteredSentences)
+            for bigram in nltk.bigrams(unigrams):
+                    posTags = nltk.pos_tag(bigram)
+                    noun = 0
+                    for (data, tag) in posTags:
+                        if tag == 'NNP':
+                            noun += 1
+                    if noun == 2:
+                        name = "%s %s" % bigram
+                        addToDictionary(name, worstDressed)                
+    getTopN(bestDressed, bestDressedList, 5)                    
+    getTopN(worstDressed, worstDressedList, 5)
+    getTopN(mostTalkedAbout, mostTalkedAboutList, 5)
+    getTopN(rivalries, rivalriesList, 2)
+              
+                        
+
+# The following functions are for Sentiment analysis: 
+
+def find_one_host(tweet):
+    hostRegEx = re.compile('hosting', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)):
+        # filter the sentences based on the reg ex for host
+        result = hostRegEx.search(sentence[sentenceIndex])
+        if result:
+            return True 
+
+def lookup_winner(tweet):
+    winnerngramList = dict()
+    # each category 
+    for categoryIndex in range(0, len(winnerRegEx)):
+        #maxWordCount = GetMaxWordCount(nomineesByCategory[categoryIndex])
+        #for index in range(0, len(tweets)):
+        result = winnerRegEx[categoryIndex].search(tweet)
+        if result:
+            return True 
+
+
+def lookup_best_movie_drama(tweet): 
+    winnerngramList = dict() 
+    bestMovieDramaRegExPatterns = re.compile('best picture.*drama',re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestMovieDramaRegExPatterns.search(sentence[sentenceIndex])
+        if result: 
+            return True 
+
+def lookup_best_dir(tweet):
+    winnerngramList = dict() 
+    bestDirectorRegEx = re.compile('best director', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestDirectorRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True 
+
+
+def lookup_best_miniSeries(tweet):
+    winnerngramList = dict() 
+    bestMiniSeriesRegEX = re.compile('best mini.*series', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestMiniSeriesRegEX.search(sentence[sentenceIndex])
+        if result: 
+            return True 
+
+def lookup_best_actorDrama(tweet):
+    winnerngramList = dict() 
+    bestActorDramaRegEx = re.compile('best actor.*drama', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestActorDramaRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True 
+
+
+def lookup_best_actorComedy(tweet):
+    winnerngramList = dict() 
+    bestActorComedyRegEx = re.compile('best actor.*comedy', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestActorComedyRegEx .search(sentence[sentenceIndex])
+        if result: 
+            return True 
+
+def lookup_best_screenPlay(tweet):
+    winnerngramList = dict() 
+    bestScreenplayRegEx = re.compile('best screenplay', re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestScreenplayRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True 
+
+def lookup_best_animated(tweet):
+    bestAnimatedFilmRegExPatterns = ['best animated film', 'best animated movie']
+    bestAnimatedFilmPattern = '|'.join(bestAnimatedFilmRegExPatterns)
+    bestAnimatedFilmRegEX = re.compile(bestAnimatedFilmPattern, re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestAnimatedFilmRegEX.search(sentence[sentenceIndex])
+        if result: 
+            return True 
+            
+
+def lookup_best_seriesActress(tweet): 
+    bestSupportingActressRegExPatterns = ['best supporting actress', 'best actress.*supporting']
+    bestSupportingActressPattern = '|'.join(bestSupportingActressRegExPatterns)
+    bestSupportingActressRegEx = re.compile(bestSupportingActressPattern, re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result =  bestSupportingActressRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True  
+
+def lookup_best_MovieDrama(tweet):
+    bestMovieDramaRegExPatterns = ['best picture.*drama', 'best motion picture.*drama', 'best movie.*drama']
+    bestMovieDramaPattern = '|'.join(bestMovieDramaRegExPatterns)
+    bestMovieDramaRegEx = re.compile(bestMovieDramaPattern, re.IGNORECASE)
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestMovieDramaRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True  
+
+def lookup_best_MovieComedy(tweet): 
+    bestMovieComedyRegExPatterns = ['best picture.*comedy', 'best motion picture.*comedy', 'best movie.*comedy']
+    bestMovieComedyPattern = '|'.join(bestMovieComedyRegExPatterns)
+    bestMovieComedyRegEx = re.compile(bestMovieComedyPattern, re.IGNORECASE)   
+    sentence = sentenceTokenizer.tokenize(tweet)
+    for sentenceIndex in range (0, len(sentence)): 
+        result = bestMovieComedyRegEx.search(sentence[sentenceIndex])
+        if result: 
+            return True                                           
+    
 
             
 

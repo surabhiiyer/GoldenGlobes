@@ -31,7 +31,7 @@ def crawl(page_url):
 							winners.append(str1)
 						else: 
 							str2 = n.string
-							str3 = str1 + ":" + " "+str2 
+							str3 = str2 + " for" + " "+ str1 
 							winners.append(str3)
 	# print "-------------------------"
 	# print "WINNERS"
@@ -52,7 +52,7 @@ def crawl(page_url):
 							nominees.append(title)
 						else: 
 							name = n.string
-							str3 = title + " " + ":" + " "+name 
+							str3 = name + " " + "for" + " "+title 
 							nominees.append(str3)
 
 			nextNode2 = nextNode.findNext('div', attrs={'class':'alt2'})
@@ -64,7 +64,7 @@ def crawl(page_url):
 							nominees.append(title)
 						else: 
 							name = n.string
-							str3 = title + " " + ":" + " "+name 
+							str3 = name + " " + "for" + " "+title 
 							nominees.append(str3)
 
 			nextNode3 = nextNode2.findNext('div',attrs={'class':'alt'})
@@ -76,7 +76,7 @@ def crawl(page_url):
 							nominees.append(title)
 						else: 
 							name = n.string
-							str3 = title + " " + ":" + " "+name 
+							str3 = name + " " + "for" + " "+title
 							nominees.append(str3)
 
 			nextNode4 = nextNode3.findNext('div', attrs={'class':'alt2'})
@@ -88,7 +88,7 @@ def crawl(page_url):
 							nominees.append(title)
 						else: 
 							name = n.string
-							str3 = title + " " + ":" + " "+name 
+							str3 = name + " " + "for" + " "+title 
 							nominees.append(str3)
 
 		nominees_categorized = []

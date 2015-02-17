@@ -22,8 +22,8 @@ for a in soup.findAll('h3'):
 				#print c.string  
 				winners.append(c.string)	
 
-print '#####WINNERS#####'
-pprint.pprint(winners)
+#print '#####WINNERS#####'
+#pprint.pprint(winners)
 
 big_list = [] 
 nominees = [] 
@@ -33,8 +33,12 @@ for i in soup.findAll('h3'):
 		nextNode = i.findNext('div',attrs={'class':'alt'})
 		for j in nextNode.findAll('strong'): 
 			for k in j.findAll('a', attrs={'href': re.compile("^/title")}):
-				#print k.string  
-				nominees.append(k.string)	
+				#print k.string 
+				nominees.append(k.string)
+
+			for x in j.findAll('a', attrs={'href': re.compile("^/name")}):
+				print x.string 
+				#nominees.append(k.string)		
 
 		nextNode2 = nextNode.findNext('div', attrs={'class':'alt2'})
 		for j in nextNode2.findAll('strong'): 
@@ -55,12 +59,12 @@ for i in soup.findAll('h3'):
 				#num_evens.setdefault(even_counter,[]).append(k.string)
 				nominees.append(k.string)	
 
-print "#####NOMINEES#######"
-pprint.pprint(nominees)
+#print "#####NOMINEES#######"
+#pprint.pprint(nominees)
 
 #creating lists 
-print "#### NOMINIEES CATEGORIZED ####","\n" 
-pprint.pprint(list(chunks(nominees, 4)))
+#print "#### NOMINIEES CATEGORIZED ####","\n" 
+#pprint.pprint(list(chunks(nominees, 4)))
 
 #print "nominees", nominees
 

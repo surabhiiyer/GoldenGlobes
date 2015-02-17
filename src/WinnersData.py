@@ -66,50 +66,11 @@ bestSupportingActressTVSeriesRegEx, bestTVSeriesComicalRegEx, bestTVSeriesDramaR
 
 winnerRegExOrdered = []
 
-nomineesMovieDrama = ['Argo', 'Django Unchained', 'Life of Pi', 'Lincoln', 'Zero Dark Thirty']
-nomineesMovieComedy = ['Les Miserables', 'The Best Exotic Marigold Hotel', 'Moonrise Kingdom', 'Salmon Fishing in the Yemen', 'Silver Linings Playbook']
-nomineesBestActorDrama = ['Daniel DayLewis', 'Richard Gere', 'John Hawkes', 'Joaquin Phoenix', 'Denzel Washington']
-nomineesBestActorMusicalComedy = ['Hugh Jackman', 'Jack Black', 'Bradley Cooper', 'Ewan McGregor', 'Bill Murray']
-nomineesBestActressDrama = ['Jessica Chastain', 'Marion Cotillard', 'Helen Mirren', 'Naomi Watts', 'Rachel Weisz']
-nomineesBestActressComedy = ['Jennifer Lawrence', 'Emily Blunt', 'Judi Dench', 'Maggie Smith', 'Meryl Streep']
-nominessSupportingActor = ['Christopher Waltz', 'Alan Arkin', 'Leonardo DiCaprio', 'Philip Seymour Hoffman', 'Tommy Lee Jones']
-nomineesSupportingActress = ['Anne Hathaway', 'Amy Adams', 'Sally Field', 'Helen Hunt', 'Nicole Kidman']
-nomineesBestDirector = ['Ben Affleck', 'Kathryn Bigelow', 'Ang Lee', 'Steven Spielberg', 'Quentin Tarantino']
-nomineesBestScreenplay = ['Quentin Tarantino', 'Chris Terrio', 'Tony Kushner', 'David O. Russel', 'Mark Boal']
-nomineesBestOriginalSong = ['Adele, Paul Epworth', 'Monty Powell , Keith Urban','Taylor Swift, John Paul White, Joy Williams, T Bone Burnett',
-'Claude Michel Schonberg, Alain Boublil, Herbert Kretzmer', 'Jon Bon Jovi']
-nomineesBestOriginalScore = ['Mychael Danna', 'Dario Marianelli', 'Alexandre Desplat', 'Reinhold Heil, Johnny Klimek, Tom Tykwer', 'John Williams'] 
-nomineesForeignLanguageFilm = ['Amour', 'Kon-Tiki', 'The Intouchables', 'A Royal Affair', 'Rust and Bone']
-nomineesBestAnimatedFilm = ['Brave', 'Frankenweenie', 'Hotel Transylvania', 'Rise of the Guardians', 'Wreck-It Ralph']
-nomineesActorTVSeriesDrama = ['Damian Lewis', 'Steve Buscemi', 'Bryan Cranston', 'Jeff Daniels', 'Jon Hamm']
-nomineesActorMiniSeries = ['Kevin Costner', 'Benedict Cumberbatch', 'Woody Harrelson', 'Toby Jones', 'Clive Owen']
-nomineesActorTVSeriesComedy = ['Don Cheadle', 'Alec Baldwin', 'Louis C.K.', 'Matt LeBlanc', 'Jim Parsons']
-nomineesActressTVSeriesDrama = ['Claire Danes', 'Connie Britton', 'Glenn Close', 'Michelle Dockery', 'Julianna Margulies']
-nomineesActressMiniSeries = ['Julianne Moore', 'Nicole Kidman', 'Jessica Lange', 'Sienna Miller', 'Sigourney Weaver']
-nomineesActressTVSeriesComedy = ['Lena Dunham', 'Zooey Deschanel', 'Tina Fey', 'Julia LouisDreyfus', 'Amy Poehler']
-nomineesSupportingActorSeries = ['Ed Harris', 'Max Greenfield', 'Danny Huston', 'Mandy Patinkin', 'Eric Stonestreet']
-nomineesSupportingActressSeries = ['Maggie Smith', 'Hayden Panettiere', 'Archie Panjabi', 'Sarah Paulson', 'Sofia Vergara']
-nomineesTelevisionSeriesComedy = ['Girls', 'The Big Bang Theory', 'Episodes', 'Modern Family', 'Smash']
-nomineesTelevisionSeriesDrama = ['Homeland', 'Downton Abbey', 'Boardwalk Empire', 'Breaking Bad', 'The Newsroom']
-nomineesBestMiniSeries = ['Game Change', 'The Girl', 'Hatfields & McCoys', 'The Hour', 'Political Animals']
-
-
-# nomineesByCategory = [nomineesMovieDrama, nomineesMovieComedy, nomineesBestActorDrama, nomineesBestActorMusicalComedy,
-# nomineesBestActressDrama, nomineesBestActressComedy, nominessSupportingActor, nomineesSupportingActress, nomineesBestDirector,
-# nomineesBestScreenplay, nomineesBestOriginalSong, nomineesBestOriginalScore, nomineesForeignLanguageFilm, nomineesBestAnimatedFilm, nomineesActorTVSeriesDrama, nomineesActorMiniSeries,
-# nomineesActorTVSeriesComedy, nomineesActressTVSeriesDrama, nomineesActressMiniSeries, nomineesActressTVSeriesComedy, nomineesSupportingActorSeries, nomineesSupportingActressSeries,
-# nomineesTelevisionSeriesComedy, nomineesTelevisionSeriesDrama, nomineesBestMiniSeries]
-
-#nomineesObject = crawler2.nominees_categorized
-
-#def populateNominees():
-
 nomineesByCategory = []
 
 categories = categoriesCrawler.categories
 specialCategories = categoriesCrawler.specialCategories
 
-#specialAwards = []
 deMilleAwardRegEx = re.compile('cecil.*[b]*.*[demille]*', re.IGNORECASE)
 missGoldenGlobeAwardRegEx = re.compile('miss.*golden.*globe', re.IGNORECASE)
 specialAwardsRegEx = [deMilleAwardRegEx, missGoldenGlobeAwardRegEx]
