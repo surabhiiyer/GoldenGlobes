@@ -2,7 +2,6 @@ import json
 import nltk
 import re
 from nltk.util import ngrams
-import urllib
 import HTMLParser
 
 #for debugging purposes only
@@ -120,6 +119,7 @@ import WinnersData
 winnerRegEx = WinnersData.winnerRegEx
 nomineesByCategory = WinnersData.nomineesByCategory
 categories = WinnersData.categories
+#regularAwardRegExReordered = WinnersData.regularAwardRegExReordered
 
 # a list to store all the winners. The index will match the category.
 # if index 0 represents Best Actor in categories, then the same index in winners list will represent the winner    

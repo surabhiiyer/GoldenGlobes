@@ -1,10 +1,7 @@
 # WinnersData.py contains all the reg ex for finding winners for each category.
 # It also contains the nominees for each category
-
 import re
-import categoriesCrawler
-import crawler2
-import pdb
+import crawler
 
 bestMovieDramaRegExPatterns = ['best.*picture.*drama', 'best.*motion picture.*drama', 'best.*movie.*drama']
 bestMovieDramaPattern = '|'.join(bestMovieDramaRegExPatterns)
@@ -68,28 +65,26 @@ winnerRegExOrdered = []
 
 nomineesByCategory = []
 
-categories = categoriesCrawler.categories
-specialCategories = categoriesCrawler.specialCategories
+categories = crawler.categories
+specialCategories = crawler.specialCategories
 
 deMilleAwardRegEx = re.compile('cecil.*[b]*.*[demille]*', re.IGNORECASE)
 missGoldenGlobeAwardRegEx = re.compile('miss.*golden.*globe', re.IGNORECASE)
 specialAwardsRegEx = [deMilleAwardRegEx, missGoldenGlobeAwardRegEx]
 specialAwardsRegExReordered = dict()
 
-categoryNomineeDictionary = dict()
+regularAwardRegExReordered = dict()
 
 def createCategoryNomineeDict(nominees_ByCategory):
-	#pdb.set_trace()
 	for index in range(0, len(categories)):
 		for regEx in winnerRegEx:
 			if regEx.search(categories[index]):
-				categoryNomineeDictionary[categories[index]] = nominees_ByCategory[index]
+				regularAwardRegExReordered[index] = regEx
 				break 
 	for categoryIndex in range(0, len(specialCategories)):
 	 	for regEx in specialAwardsRegEx:
 	 		if regEx.search(specialCategories[categoryIndex]):
 	 			specialAwardsRegExReordered[categoryIndex] = regEx
 	nomineesByCategory = nominees_ByCategory 			
-	#pdb.set_trace()
  						
 

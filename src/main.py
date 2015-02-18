@@ -1,6 +1,6 @@
 import json
 import categoriesCrawler
-import crawler2
+import crawler
 import functionDefinitions
 import WinnersData
 import jsonResult
@@ -28,9 +28,9 @@ if __name__ == "__main__":
     threadHosts.start()
     print("Shelob, the spider, will search the web for additional resources.\n")
     url = "http://www.imdb.com/event/ev0000292/%s" % year 
-    categoriesCrawler.scrapeCategories(url)
+    #categoriesCrawler.scrapeCategories(url)
     nominees_categorized = []
-    nominees_categorized = crawler2.crawl(url)
+    nominees_categorized = crawler.crawl(url)
     print("Populating Nominees and Categories...\n")
     WinnersData.createCategoryNomineeDict(nominees_categorized)
     print("Calling on the Presenters...\n")
@@ -51,8 +51,8 @@ if __name__ == "__main__":
     concString = "Hosted by: " + hostString    
     print(concString)
     mainMenuLoop = 1
-    categories = categoriesCrawler.categories
-    specialCategories = categoriesCrawler.specialCategories
+    categories = crawler.categories
+    specialCategories = crawler.specialCategories
     while mainMenuLoop == 1:
         print("\n")
         option = input("Press 1. To go to Red Carpet, 2. To go to the Award Ceremony, 3. To learn what others said about the ceremony, 4. To view all the award presenters, 5. To free me from my duties : \n")
