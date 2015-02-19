@@ -1,5 +1,4 @@
 import json
-import categoriesCrawler
 import crawler
 import functionDefinitions
 import WinnersData
